@@ -83,7 +83,7 @@ http://localhost:3000
 > git submodule update --init --recursive
 > ```
 
-![BESSER Web Modeling Editor home screen](figs/screenshot_editor_home.png)
+![BESSER Web Modeling Editor home screen](figs/editor.png)
 
 ---
 
@@ -111,10 +111,6 @@ With the `H2PlantDSL` project open in the editor:
 
 > The pre-generated output is already included at `LuxHyVal/DT-desing-env.zip` — skip to Step 4 to deploy it directly.
 
-![Generator selection panel in the BESSER editor](figs/screenshot_generator_panel.png)
-
-![Generation success notification](figs/screenshot_generation_success.png)
-
 ---
 
 ## Step 4 — Deploy the Generated DT Design Environment
@@ -138,8 +134,6 @@ This starts four services:
 | InfluxDB | http://localhost:8086 | Time-series history store |
 | Mosquitto | localhost:1883 | Local MQTT broker for live data bindings (optional) |
 
-![Generated DT design environment — empty canvas with the H2Plant component palette](figs/DT_platform_full.png)
-
 ---
 
 ## Step 5 — Load the DT Instances
@@ -160,10 +154,6 @@ From here, the DT engineer can:
 All state changes are recorded in InfluxDB, enabling historical analysis of system behavior.
 
 ![Loaded DT instances on the canvas — hydrogen plant topology](figs/DT_platform.png)
-
-![Property inspector panel with a PEM Electrolyzer instance selected](figs/screenshot_property_inspector.png)
-
-![Simulation running — live state values updating on the canvas](figs/screenshot_simulation_running.png)
 
 ---
 
@@ -188,7 +178,6 @@ docker compose down          # run from LuxHyVal/DT-design-env/
 | BESSER web editor (online) | https://editor.besser-pearl.org/ |
 | BESSER web editor fork (this repo's submodule) | https://github.com/ivan-alfonso/BESSER-WME-DT |
 | LuxHyVal project | https://luxhyval.eu/ |
-| BESSER examples | https://github.com/BESSER-PEARL/BESSER-examples |
 
 ---
 
