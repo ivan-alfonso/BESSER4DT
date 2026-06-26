@@ -10,6 +10,7 @@ from .project_converter import json_to_buml_project
 from .gui_diagram_processor import process_gui_diagram
 from .quantum_diagram_processor import process_quantum_diagram
 from .platform_customization_processor import process_platform_customization_diagram
+from .nn_diagram_processor import process_nn_diagram
 
 __all__ = [
     'process_class_diagram',
@@ -20,4 +21,5 @@ __all__ = [
     'process_gui_diagram',
     'process_quantum_diagram',
     'process_platform_customization_diagram',
+    'process_nn_diagram',
 ]

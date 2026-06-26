@@ -36,8 +36,12 @@ def parse_buml_content(content: str) -> DomainModel:
         if isinstance(content, DomainModel):
             return content
 
-        # Create a safe environment for eval without any generators
+        # Create a safe environment for eval without any generators.
+        # __name__ is set to a sentinel (not "__main__") so any
+        # ``if __name__ == "__main__":`` guarded blocks in user files are
+        # skipped during import — matching normal Python import semantics.
         safe_globals = {
+            "__name__": "besser_buml_import",
             "__builtins__": {
                 "set": set,
                 "list": list,
@@ -80,6 +84,11 @@ def parse_buml_content(content: str) -> DomainModel:
             "DateTimeType": PrimitiveDataType("datetime"),
             "TimeDeltaType": PrimitiveDataType("timedelta"),
             "AnyType": PrimitiveDataType("any"),
+            # No-op stub: project-exported files often end with a
+            # `project = Project(name=..., models=[domain_model], ...)` tail.
+            # The class converter only cares about the DomainModel; swallowing
+            # the Project(...) call with a stub keeps the sandbox import-tolerant.
+            "Project": lambda *args, **kwargs: None,
         }
 
         # Ensure we have a string before preprocessing
@@ -192,7 +201,9 @@ def class_buml_to_json(domain_model):
         (t for t in domain_model.types | domain_model.constraints if isinstance(t, (Class, Enumeration, Constraint))),
         key=lambda t: t.name,
     ):
-            # Generate UUID for the element
+            # Generate UUID for the element. OCL pre/post are emitted as
+            # full text including the Class::method header, so element-id
+            # stability is no longer required.
             element_id = str(uuid.uuid4())
             class_id_map[type_obj] = element_id
 
@@ -406,9 +417,20 @@ def class_buml_to_json(domain_model):
                         ),
                     }
                     if not isinstance(type_obj, Constraint)
-                    else {"constraint": type_obj.expression}
+                    # Class-level constraints are always invariants and their
+                    # ``expression`` field already carries the full canonical
+                    # ``context X inv name: body`` text (set at JSON-to-BUML
+                    # parse time). Emit it verbatim — no reconstruction
+                    # needed.
+                    else {
+                        "constraint": type_obj.expression,
+                    }
                 ),
             }
+
+            # Surface natural-language constraint descriptions for the editor
+            if isinstance(type_obj, Constraint) and getattr(type_obj, 'description', None):
+                element_data["description"] = type_obj.description
 
             # Add metadata fields for classes if they exist
             if isinstance(type_obj, Class) and hasattr(type_obj, 'metadata') and type_obj.metadata:
@@ -634,6 +656,63 @@ def class_buml_to_json(domain_model):
                 "path": [{"x": 0, "y": 0}, {"x": 0, "y": 0}],
                 "isManuallyLayouted": False,
             }
+
+    # Emit pre/post conditions anchored on Method.pre and Method.post.
+    # These are stored on the metamodel as first-class fields (not inside
+    # domain_model.constraints), so they need their own emission pass.
+    # Each constraint becomes its own ClassOCLConstraint element + a
+    # ClassOCLLink to the owning class. The textbox carries the full
+    # ``context X::method(params) pre|post: body`` form — same shape the
+    # ingest path now expects from a freshly-typed constraint.
+    for cls in sorted(
+        (t for t in domain_model.types if isinstance(t, Class)),
+        key=lambda c: c.name,
+    ):
+        if cls not in class_id_map:
+            continue
+        for method in sorted(cls.methods, key=lambda m: m.name):
+            for kind, constraints in (("precondition", getattr(method, "pre", []) or []),
+                                       ("postcondition", getattr(method, "post", []) or [])):
+                for constraint in constraints:
+                    box_id = str(uuid.uuid4())
+                    elements[box_id] = {
+                        "id": box_id,
+                        "type": "ClassOCLConstraint",
+                        "owner": None,
+                        "bounds": {"x": 0, "y": 0, "width": 200, "height": 100},
+                        # ``expression`` carries the full canonical
+                        # ``context X::method(params) pre|post: body`` text
+                        # (set at JSON-to-BUML parse time). No reconstruction
+                        # needed.
+                        "constraint": constraint.expression,
+                    }
+                    # Mirror the invariant emit path: surface the
+                    # natural-language description so JSON↔BUML round-trips
+                    # are symmetric for method contracts too.
+                    if getattr(constraint, "description", None):
+                        elements[box_id]["description"] = constraint.description
+                    rel_id = str(uuid.uuid4())
+                    relationships[rel_id] = {
+                        "id": rel_id,
+                        "name": "",
+                        "type": "ClassOCLLink",
+                        "owner": None,
+                        "source": {
+                            "direction": "Left",
+                            "element": box_id,
+                            "multiplicity": "",
+                            "role": "",
+                        },
+                        "target": {
+                            "direction": "Right",
+                            "element": class_id_map[cls],
+                            "multiplicity": "",
+                            "role": "",
+                        },
+                        "bounds": {"x": 0, "y": 0, "width": 0, "height": 0},
+                        "path": [{"x": 0, "y": 0}, {"x": 0, "y": 0}],
+                        "isManuallyLayouted": False,
+                    }
 
     # Create comment elements from metadata descriptions
     for comment_text, linked_class_id in comments_to_create:

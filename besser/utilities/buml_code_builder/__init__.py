@@ -13,6 +13,7 @@ from besser.utilities.buml_code_builder.platform_customization_builder import (
     platform_customization_to_code,
 )
 from besser.utilities.buml_code_builder.project_builder import project_to_code
+from besser.utilities.buml_code_builder.nn_model_builder import nn_model_to_code
 
 __all__ = [
     '_escape_python_string',
@@ -21,5 +22,6 @@ __all__ = [
     'gui_model_to_code',
     'state_machine_to_code',
     'platform_customization_to_code',
-    'project_to_code'
+    'project_to_code',
+    'nn_model_to_code',
 ]

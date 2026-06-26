@@ -25,6 +25,7 @@ from besser.utilities.buml_code_builder.quantum_model_builder import quantum_mod
 from besser.utilities.buml_code_builder.platform_customization_builder import (
     platform_customization_to_code,
 )
+from besser.utilities.buml_code_builder.nn_model_builder import nn_model_to_code
 
 try:
     from besser.utilities.web_modeling_editor.backend.constants.user_buml_model import (
@@ -88,6 +89,7 @@ def project_to_code(project: Project, file_path: str, sm: str = ""):
     gui_models = []
     quantum_models = []
     state_machine_models = []   # StateMachine models
+    nn_models = []
 
     # Import GUIModel locally to avoid circular imports
     try:
@@ -108,6 +110,12 @@ def project_to_code(project: Project, file_path: str, sm: str = ""):
         PlatformCustomizationModel = None
 
     platform_customization_models = []
+
+    # Import NN locally
+    try:
+        from besser.BUML.metamodel.nn import NN
+    except ImportError:
+        NN = None
 
     for model in project.models:
         if isinstance(model, DomainModel):
@@ -130,6 +138,8 @@ def project_to_code(project: Project, file_path: str, sm: str = ""):
             quantum_models.append(model)
         elif PlatformCustomizationModel and isinstance(model, PlatformCustomizationModel):
             platform_customization_models.append(model)
+        elif NN and isinstance(model, NN):
+            nn_models.append(model)
 
     # If we have user object models but no user domain model, use the
     # reference one shipped with the editor backend (when available).
@@ -169,6 +179,7 @@ def project_to_code(project: Project, file_path: str, sm: str = ""):
     n_quantum = len(quantum_models)
     n_sm = len(state_machine_models)
     n_pc = len(platform_customization_models)
+    n_nn = len(nn_models)
 
     # Variable names collected for the final Project(...) definition
     model_vars = []
@@ -367,6 +378,22 @@ def project_to_code(project: Project, file_path: str, sm: str = ""):
                     model_var_name=var_name,
                 )
                 _write_temp_to_output(tmp_path, f, section_header=section)
+                model_vars.append(var_name)
+
+            # ---------------------------------------------------------- #
+            # NN MODELS                                                  #
+            # ---------------------------------------------------------- #
+            nn_titles_by_id = getattr(project, "_nn_diagram_titles", {}) or {}
+            for idx, nm in enumerate(nn_models, start=1):
+                var_name = _suffixed_name("nn_model", idx, n_nn)
+
+                title = nn_titles_by_id.get(id(nm)) or getattr(nm, "name", None)
+                if n_nn > 1 and title and not str(title).strip().startswith(f"NN {idx}"):
+                    title = f"{title} ({idx})"
+
+                tmp_path = os.path.join(temp_dir, f"nn_model_{idx}.py")
+                nn_model_to_code(model=nm, file_path=tmp_path, model_var_name=var_name, title=title)
+                _write_temp_to_output(tmp_path, f)
                 model_vars.append(var_name)
 
             # Legacy: if a raw code string was passed, include it as-is
