@@ -1,0 +1,801 @@
+/**
+ * PropertyEditor Component
+ * Side-panel editor for instance attributes AND outgoing links.
+ * For input-bound attributes (is_input=True in the BESSER model) also
+ * renders a simulator-source selector (constant / sine / ramp / replay_csv)
+ * and a Recharts history chart.
+ */
+{% raw %}
+import React, { useMemo, useState, useEffect } from 'react';
+import { AlertCircle, Play, X } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import type {
+  AssociationMetadata,
+  BaseInstance,
+  ClassMetadata,
+  MethodMetadata,
+  ParameterMetadata,
+} from '../types/models';
+import { getEnumerationValues, isAssignableTo } from '../types/models';
+import * as api from '../api/instances';
+import * as bindingsApi from '../api/bindings';
+import type { Binding, BindingKind } from '../api/bindings';
+import { HistoryChart } from './HistoryChart';
+{% endraw %}
+// Per-class list of input-bound attribute names, generated from the BESSER model.
+// Attributes that have metadata.is_input=True will show a simulator-source picker.
+const INPUT_ATTRIBUTES_REGISTRY: Record<string, string[]> = {
+{% for class_name, attrs in input_attributes_registry.items() %}
+  "{{ class_name }}": [{% for a in attrs %}"{{ a }}"{% if not loop.last %}, {% endif %}{% endfor %}],
+{% endfor %}
+};
+{% raw %}
+
+export interface SelectedLink {
+  associationName: string;
+  targetClass: string;
+  targetId: string;
+}
+
+interface PropertyEditorProps {
+  instance: BaseInstance;
+  classMetadata: ClassMetadata;
+  /** All known classes; used to resolve association target metadata. */
+  availableClasses: ClassMetadata[];
+  /** Every existing instance in the editor; used to populate target pickers. */
+  existingInstances: BaseInstance[];
+  onSave: (instance: BaseInstance, selectedLinks: SelectedLink[]) => void;
+  onClose: () => void;
+}
+
+const inputTypeFor = (attrType: string): string => {
+  const t = attrType.toLowerCase();
+  if (t.includes('datetime')) return 'datetime-local';
+  if (t.includes('date')) return 'date';
+  if (t.includes('time')) return 'time';
+  if (t.includes('int') || t.includes('number') || t.includes('float') || t.includes('double'))
+    return 'number';
+  if (t.includes('bool')) return 'checkbox';
+  if (t.includes('email')) return 'email';
+  return 'text';
+};
+
+const multiplicityKind = (
+  m: AssociationMetadata['multiplicity'],
+): 'optional_single' | 'required_single' | 'optional_many' | 'required_many' => {
+  const isMany = m.max > 1 || m.max < 0;
+  const isRequired = m.min > 0;
+  if (isMany) return isRequired ? 'required_many' : 'optional_many';
+  return isRequired ? 'required_single' : 'optional_single';
+};
+
+const multiplicityLabel = (m: AssociationMetadata['multiplicity']): string => {
+  const max = m.max < 0 || m.max >= 9999 ? '*' : String(m.max);
+  return `${m.min}..${max}`;
+};
+
+interface AssociationFieldProps {
+  association: AssociationMetadata;
+  candidates: BaseInstance[];
+  values: string[];
+  onChange: (values: string[]) => void;
+}
+
+const AssociationField: React.FC<AssociationFieldProps> = ({
+  association,
+  candidates,
+  values,
+  onChange,
+}) => {
+  const kind = multiplicityKind(association.multiplicity);
+  const fieldId = `edit-assoc-${association.name}`;
+  const required = kind === 'required_single' || kind === 'required_many';
+
+  if (candidates.length === 0) {
+    return (
+      <div className="space-y-1.5 rounded-md border border-dashed border-muted bg-muted/20 p-3">
+        <Label className="text-sm font-medium">
+          {association.targetEndName || association.name}
+          {required && <span className="ml-1 text-destructive">*</span>}
+          <span className="ml-2 text-xs font-normal text-muted-foreground">
+            ({association.targetClass}, {multiplicityLabel(association.multiplicity)})
+          </span>
+        </Label>
+        <p className="text-xs italic text-muted-foreground">
+          No {association.targetClass} instances exist to link.
+        </p>
+      </div>
+    );
+  }
+
+  if (kind === 'optional_single' || kind === 'required_single') {
+    return (
+      <div className="space-y-1.5">
+        <Label htmlFor={fieldId} className="text-sm font-medium">
+          {association.targetEndName || association.name}
+          {required && <span className="ml-1 text-destructive">*</span>}
+          <span className="ml-2 text-xs font-normal text-muted-foreground">
+            ({association.targetClass}, {multiplicityLabel(association.multiplicity)})
+          </span>
+        </Label>
+        <select
+          id={fieldId}
+          value={values[0] ?? ''}
+          onChange={(e) => onChange(e.target.value ? [e.target.value] : [])}
+          className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          required={required}
+        >
+          <option value="">{required ? '— Select one —' : '— None —'}</option>
+          {candidates.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.instance_name}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
+  }
+
+  const minRequired = association.multiplicity.min;
+  const tooFew = required && values.length < minRequired;
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-sm font-medium">
+        {association.targetEndName || association.name}
+        {required && <span className="ml-1 text-destructive">*</span>}
+        <span className="ml-2 text-xs font-normal text-muted-foreground">
+          ({association.targetClass}, {multiplicityLabel(association.multiplicity)})
+        </span>
+      </Label>
+      <div className="max-h-40 overflow-y-auto rounded-md border border-input bg-background p-2">
+        {candidates.map((c) => {
+          const checked = values.includes(c.id);
+          return (
+            <label
+              key={c.id}
+              className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-accent"
+            >
+              <input
+                type="checkbox"
+                className="size-4 cursor-pointer accent-primary"
+                checked={checked}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    onChange([...values, c.id]);
+                  } else {
+                    onChange(values.filter((v) => v !== c.id));
+                  }
+                }}
+              />
+              <span className="truncate">{c.instance_name}</span>
+            </label>
+          );
+        })}
+      </div>
+      {tooFew && (
+        <p className="flex items-center gap-1 text-xs text-destructive">
+          <AlertCircle className="size-3" />
+          Select at least {minRequired} {minRequired === 1 ? 'item' : 'items'}.
+        </p>
+      )}
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// BindingSection — simulator source picker for a single is_input attribute.
+// Loads the current binding on mount; PUT / DELETE on change.
+// ---------------------------------------------------------------------------
+const BINDING_KIND_LABELS: Record<BindingKind, string> = {
+  constant: 'Constant',
+  sine: 'Sine',
+  ramp: 'Ramp',
+  replay_csv: 'Replay CSV',
+  mqtt: 'MQTT (live)',
+};
+
+const BindingSection: React.FC<{
+  domainClass: string;
+  instanceId: string;
+  attribute: string;
+  attrType: string;
+}> = ({ domainClass, instanceId, attribute, attrType }) => {
+  const [binding, setBinding] = useState<Binding | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  // Load existing binding on mount.
+  useEffect(() => {
+    bindingsApi.listBindings(domainClass, instanceId).then((list) => {
+      const found = list.find((b) => b.attribute === attribute) ?? null;
+      setBinding(found);
+    }).catch(() => {/* ignore */});
+  }, [domainClass, instanceId, attribute]);
+
+  const handleKindChange = async (kind: string) => {
+    if (kind === '') {
+      // Clear binding.
+      setSaving(true);
+      await bindingsApi.clearBinding(domainClass, instanceId, attribute).catch(() => {});
+      setBinding(null);
+      setSaving(false);
+      return;
+    }
+    const defaultParams: Record<string, unknown> =
+      kind === 'constant' ? { value: 0 }
+      : kind === 'sine' ? { amplitude: 1, frequency: 0.1, offset: 0 }
+      : kind === 'ramp' ? { start: 0, rate: 1, max_value: null }
+      : kind === 'mqtt' ? { host: '', port: 1883, topic: '' }
+      : { source_id: '' };
+    setSaving(true);
+    await bindingsApi.setBinding(domainClass, instanceId, attribute, kind as BindingKind, defaultParams).catch(() => {});
+    setBinding({ attribute, kind: kind as BindingKind, params: defaultParams });
+    setSaving(false);
+  };
+
+  const handleParamChange = async (key: string, value: unknown) => {
+    if (!binding) return;
+    const newParams = { ...binding.params, [key]: value };
+    setSaving(true);
+    await bindingsApi.setBinding(domainClass, instanceId, attribute, binding.kind, newParams).catch(() => {});
+    setBinding({ ...binding, params: newParams });
+    setSaving(false);
+  };
+
+  const isNumeric = attrType.toLowerCase().includes('float') || attrType.toLowerCase().includes('int')
+    || attrType.toLowerCase().includes('number') || attrType.toLowerCase().includes('double');
+
+  return (
+    <div className="mt-1.5 rounded-md border border-primary/20 bg-primary/5 p-2 text-xs">
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-semibold text-primary/80">Input source</span>
+        <select
+          value={binding?.kind ?? ''}
+          onChange={(e) => void handleKindChange(e.target.value)}
+          className="h-7 rounded border border-border bg-background px-2 text-xs"
+          disabled={saving}
+        >
+          <option value="">— None (manual) —</option>
+          {Object.entries(BINDING_KIND_LABELS).map(([k, label]) => (
+            <option key={k} value={k}>{label}</option>
+          ))}
+        </select>
+      </div>
+      {binding?.kind === 'constant' && (
+        <div className="mt-1.5 flex items-center gap-2">
+          <Label className="text-xs">Value</Label>
+          <Input
+            type="number"
+            className="h-6 text-xs"
+            value={String((binding.params as Record<string, unknown>).value ?? 0)}
+            onChange={(e) => void handleParamChange('value', parseFloat(e.target.value))}
+          />
+        </div>
+      )}
+      {binding?.kind === 'sine' && (
+        <div className="mt-1.5 grid grid-cols-3 gap-1.5">
+          {(['amplitude', 'frequency', 'offset'] as const).map((k) => (
+            <div key={k}>
+              <Label className="text-[10px] capitalize">{k}</Label>
+              <Input
+                type="number"
+                className="h-6 text-xs"
+                value={String((binding.params as Record<string, unknown>)[k] ?? 0)}
+                onChange={(e) => void handleParamChange(k, parseFloat(e.target.value))}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+      {binding?.kind === 'ramp' && (
+        <div className="mt-1.5 grid grid-cols-3 gap-1.5">
+          {(['start', 'rate', 'max_value'] as const).map((k) => (
+            <div key={k}>
+              <Label className="text-[10px] capitalize">{k.replace('_', ' ')}</Label>
+              <Input
+                type="number"
+                className="h-6 text-xs"
+                placeholder={k === 'max_value' ? '∞' : '0'}
+                value={String((binding.params as Record<string, unknown>)[k] ?? '')}
+                onChange={(e) => void handleParamChange(k, e.target.value === '' ? null : parseFloat(e.target.value))}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+      {binding?.kind === 'replay_csv' && (
+        <div className="mt-1.5 text-[10px] text-muted-foreground">
+          source_id: {(binding.params as { source_id?: string }).source_id || '(none — upload via /api/bindings/replay-csv)'}
+        </div>
+      )}
+      {binding?.kind === 'mqtt' && (
+        <div className="mt-1.5 grid grid-cols-3 gap-1.5">
+          <div className="col-span-2">
+            <Label className="text-[10px]">Broker host</Label>
+            <Input
+              type="text"
+              className="h-6 text-xs"
+              placeholder="localhost"
+              value={String((binding.params as Record<string, unknown>).host ?? '')}
+              onChange={(e) => void handleParamChange('host', e.target.value)}
+            />
+          </div>
+          <div>
+            <Label className="text-[10px]">Port</Label>
+            <Input
+              type="number"
+              className="h-6 text-xs"
+              placeholder="1883"
+              value={String((binding.params as Record<string, unknown>).port ?? 1883)}
+              onChange={(e) => void handleParamChange('port', parseInt(e.target.value, 10) || 1883)}
+            />
+          </div>
+          <div className="col-span-3">
+            <Label className="text-[10px]">Topic</Label>
+            <Input
+              type="text"
+              className="h-6 text-xs"
+              placeholder="plant/sensor/value"
+              value={String((binding.params as Record<string, unknown>).topic ?? '')}
+              onChange={(e) => void handleParamChange('topic', e.target.value)}
+            />
+          </div>
+        </div>
+      )}
+      {isNumeric && (
+        <div className="mt-2">
+          <HistoryChart domainClass={domainClass} instanceId={instanceId} attribute={attribute} />
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const PropertyEditor: React.FC<PropertyEditorProps> = ({
+  instance,
+  classMetadata,
+  availableClasses,
+  existingInstances,
+  onSave,
+  onClose,
+}) => {
+  const [instanceName, setInstanceName] = useState(instance.instance_name);
+  const [attributes, setAttributes] = useState<Record<string, any>>(instance.attributes);
+
+  const associations = useMemo(
+    () =>
+      classMetadata.associations.filter((a) =>
+        availableClasses.some((c) => c.name === a.targetClass),
+      ),
+    [classMetadata.associations, availableClasses],
+  );
+
+  // Pre-populate selections by reading links from BOTH ends. The backend stores
+  // each link on whichever side called createLink, so to surface, say, the
+  // libraries already linked to a city (when the link was authored from the
+  // library side via the "city: …" picker) we have to search every other
+  // instance for inbound links via the same association name.
+  const [selections, setSelections] = useState<Record<string, string[]>>(() => {
+    const initial: Record<string, string[]> = {};
+    for (const assoc of classMetadata.associations) {
+      const direct = instance.links
+        .filter(
+          (l) => l.association_name === assoc.name && l.target_class === assoc.targetClass,
+        )
+        .map((l) => l.target_id);
+      const inverse = existingInstances
+        .filter((i) => isAssignableTo(i.class_name, assoc.targetClass) && i.id !== instance.id)
+        .filter((i) =>
+          i.links.some(
+            (l) => l.association_name === assoc.name && l.target_id === instance.id,
+          ),
+        )
+        .map((i) => i.id);
+      initial[assoc.name] = Array.from(new Set([...direct, ...inverse]));
+    }
+    return initial;
+  });
+
+  const candidatesByAssociation = useMemo(() => {
+    const map: Record<string, BaseInstance[]> = {};
+    for (const assoc of associations) {
+      // Polymorphic + exclude the instance itself for self-associations.
+      map[assoc.name] = existingInstances.filter(
+        (i) => isAssignableTo(i.class_name, assoc.targetClass) && i.id !== instance.id,
+      );
+    }
+    return map;
+  }, [associations, existingInstances, instance.id]);
+
+  const handleAttributeChange = (key: string, value: any) => {
+    setAttributes((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const validationError = useMemo<string | null>(() => {
+    for (const assoc of associations) {
+      const min = assoc.multiplicity.min;
+      if (min <= 0) continue;
+      const picked = (selections[assoc.name] ?? []).length;
+      if (picked < min) {
+        return `"${assoc.targetEndName || assoc.name}" requires at least ${min}.`;
+      }
+    }
+    return null;
+  }, [associations, selections]);
+
+  // Runtime kernel: per-method invocation state.
+  //   - ``invoking`` is the name of the method currently being awaited
+  //     (or null) so we can disable just that button + show its spinner.
+  //   - ``invokeError`` / ``lastInvokeResult`` are surfaced in the footer
+  //     so failures aren't lost to the console.
+  //   - ``paramModalMethod`` holds the open parameter-collection modal.
+  const methods: MethodMetadata[] = classMetadata.methods ?? [];
+  const [invoking, setInvoking] = useState<string | null>(null);
+  const [invokeError, setInvokeError] = useState<string | null>(null);
+  const [lastInvokeResult, setLastInvokeResult] = useState<{
+    method: string;
+    value: unknown;
+  } | null>(null);
+  const [paramModalMethod, setParamModalMethod] = useState<MethodMetadata | null>(null);
+
+  const runMethod = async (method: MethodMetadata, args: Record<string, unknown>) => {
+    setInvoking(method.name);
+    setInvokeError(null);
+    try {
+      const res = await api.invokeMethod(instance.class_name, instance.id, method.name, args);
+      // Reflect mutated attributes in the open form so the user can call
+      // again and watch state evolve without closing the dialog.
+      setAttributes(res.instance.attributes);
+      setLastInvokeResult({ method: method.name, value: res.result });
+    } catch (error) {
+      const detail = (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+      setInvokeError(detail ?? (error as Error).message ?? `${method.name}() failed`);
+    } finally {
+      setInvoking(null);
+    }
+  };
+
+  const handleMethodClick = (method: MethodMetadata) => {
+    if (method.parameters.length === 0) {
+      void runMethod(method, {});
+    } else {
+      setParamModalMethod(method);
+    }
+  };
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validationError) return;
+
+    const selectedLinks: SelectedLink[] = [];
+    for (const assoc of associations) {
+      const targets = selections[assoc.name] ?? [];
+      for (const targetId of targets) {
+        selectedLinks.push({
+          associationName: assoc.name,
+          targetClass: assoc.targetClass,
+          targetId,
+        });
+      }
+    }
+    onSave({ ...instance, instance_name: instanceName, attributes }, selectedLinks);
+  };
+
+  return (
+    <>
+    <aside className="flex h-full w-[360px] shrink-0 flex-col border-l border-border bg-card">
+      <form onSubmit={handleSave} className="flex h-full flex-col">
+        <header className="flex items-center justify-between gap-2 border-b bg-accent/40 px-4 py-3">
+          <div className="min-w-0">
+            <h2 className="truncate text-base font-semibold text-foreground">
+              {instance.instance_name || 'Instance'}
+            </h2>
+            <p className="text-xs text-muted-foreground">{instance.class_name}</p>
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            title="Close inspector"
+            aria-label="Close inspector"
+          >
+            <X className="size-4" />
+          </Button>
+        </header>
+
+        <div className="scrollbar-thin flex-1 space-y-5 overflow-y-auto px-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-instance-name">Instance Name</Label>
+              <Input
+                id="edit-instance-name"
+                value={instanceName}
+                onChange={(e) => setInstanceName(e.target.value)}
+                autoFocus
+              />
+            </div>
+
+            <div className="space-y-4">
+              <h4 className="text-sm font-semibold text-foreground">Attributes</h4>
+              {classMetadata.attributes.length === 0 && (
+                <p className="text-sm italic text-muted-foreground">No attributes defined.</p>
+              )}
+              {classMetadata.attributes.map((attrMeta) => {
+                const inputType = inputTypeFor(attrMeta.type);
+                const fieldId = `edit-${attrMeta.name}`;
+                const currentValue = attributes[attrMeta.name] ?? '';
+                // Enum-typed attributes render as a <select> populated from
+                // the ENUMERATIONS registry. Empty string represents "unset".
+                const enumValues = getEnumerationValues(attrMeta.type);
+                return (
+                  <div key={attrMeta.name} className="space-y-2">
+                    <Label htmlFor={fieldId}>
+                      {attrMeta.name}
+                      <span className="ml-2 text-xs font-normal text-muted-foreground">
+                        ({attrMeta.type})
+                      </span>
+                    </Label>
+                    {enumValues ? (
+                      <select
+                        id={fieldId}
+                        className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        value={String(currentValue)}
+                        onChange={(e) => handleAttributeChange(attrMeta.name, e.target.value)}
+                      >
+                        <option value="">— Select {attrMeta.type} —</option>
+                        {enumValues.map((v) => (
+                          <option key={v} value={v}>{v}</option>
+                        ))}
+                      </select>
+                    ) : inputType === 'checkbox' ? (
+                      <input
+                        id={fieldId}
+                        type="checkbox"
+                        className="h-5 w-5 cursor-pointer accent-primary"
+                        checked={currentValue === true || currentValue === 'true'}
+                        onChange={(e) => handleAttributeChange(attrMeta.name, e.target.checked)}
+                      />
+                    ) : (
+                      <Input
+                        id={fieldId}
+                        type={inputType}
+                        value={String(currentValue)}
+                        onChange={(e) => {
+                          const value =
+                            inputType === 'number'
+                              ? e.target.value === ''
+                                ? ''
+                                : parseFloat(e.target.value)
+                              : e.target.value;
+                          handleAttributeChange(attrMeta.name, value);
+                        }}
+                        placeholder={`Enter ${attrMeta.name}`}
+                      />
+                    )}
+                    {/* Simulator source picker — shown only for is_input-flagged attrs */}
+                    {(INPUT_ATTRIBUTES_REGISTRY[instance.class_name] ?? []).includes(attrMeta.name) && (
+                      <BindingSection
+                        domainClass={instance.class_name}
+                        instanceId={instance.id}
+                        attribute={attrMeta.name}
+                        attrType={attrMeta.type}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {associations.length > 0 && (
+              <div className="space-y-4">
+                <h4 className="text-sm font-semibold text-foreground">Associations</h4>
+                {associations.map((assoc) => (
+                  <AssociationField
+                    key={assoc.name + ':' + assoc.targetClass}
+                    association={assoc}
+                    candidates={candidatesByAssociation[assoc.name] ?? []}
+                    values={selections[assoc.name] ?? []}
+                    onChange={(vs) => setSelections((prev) => ({ ...prev, [assoc.name]: vs }))}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Methods section — one ▶ button per executable method. The
+              modal it can open for parameter-taking methods is rendered
+              outside this form, below. */}
+          {methods.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5 border-t bg-accent/20 px-4 py-3">
+              <span className="mr-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Methods
+              </span>
+              {methods.map((m) => (
+                <Button
+                  key={m.name}
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => handleMethodClick(m)}
+                  disabled={invoking !== null}
+                  title={
+                    m.parameters.length === 0
+                      ? `Run ${m.name}()`
+                      : `Run ${m.name}(${m.parameters.map((p) => `${p.name}: ${p.type}`).join(', ')})`
+                  }
+                  className="gap-1.5"
+                >
+                  <Play className="size-3.5" />
+                  {invoking === m.name ? `${m.name}…` : m.name}
+                  {m.parameters.length > 0 && (
+                    <span className="text-[10px] text-muted-foreground">
+                      ({m.parameters.length})
+                    </span>
+                  )}
+                </Button>
+              ))}
+            </div>
+          )}
+
+        <footer className="flex flex-col gap-2 border-t bg-accent/40 px-4 py-3">
+          {validationError && (
+            <p className="flex items-center gap-1 text-xs text-destructive">
+              <AlertCircle className="size-3.5" />
+              {validationError}
+            </p>
+          )}
+          {!validationError && invokeError && (
+            <p className="flex items-center gap-1 text-xs text-destructive">
+              <AlertCircle className="size-3.5" />
+              {invokeError}
+            </p>
+          )}
+          {!validationError && !invokeError && lastInvokeResult && lastInvokeResult.value !== null && lastInvokeResult.value !== undefined && (
+            <p className="text-xs text-muted-foreground">
+              {lastInvokeResult.method} → <span className="font-mono">{String(lastInvokeResult.value)}</span>
+            </p>
+          )}
+          <div className="flex justify-end gap-2">
+            <Button type="submit" size="sm" disabled={validationError !== null}>
+              Save Changes
+            </Button>
+          </div>
+        </footer>
+      </form>
+    </aside>
+
+    {paramModalMethod && (
+      <ParameterPromptDialog
+        method={paramModalMethod}
+        onCancel={() => setParamModalMethod(null)}
+        onSubmit={async (args) => {
+          const m = paramModalMethod;
+          setParamModalMethod(null);
+          await runMethod(m, args);
+        }}
+      />
+    )}
+    </>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Parameter prompt dialog — opens when a method has one or more parameters.
+// Renders one typed input per parameter and collects values into a record
+// keyed by parameter name. Submit forwards to ``onSubmit`` so the parent
+// runs the actual invocation.
+// ---------------------------------------------------------------------------
+const ParameterPromptDialog: React.FC<{
+  method: MethodMetadata;
+  onCancel: () => void;
+  onSubmit: (args: Record<string, unknown>) => void;
+}> = ({ method, onCancel, onSubmit }) => {
+  // Seed values with empty strings; the submit step coerces per parameter type.
+  const [values, setValues] = useState<Record<string, string>>(() =>
+    Object.fromEntries(method.parameters.map((p) => [p.name, ''])),
+  );
+  const [error, setError] = useState<string | null>(null);
+
+  const coerce = (param: ParameterMetadata, raw: string): unknown => {
+    const t = param.type.toLowerCase();
+    if (raw === '') return null;
+    if (t.includes('int')) {
+      const n = parseInt(raw, 10);
+      if (Number.isNaN(n)) throw new Error(`'${param.name}' must be an integer`);
+      return n;
+    }
+    if (t.includes('float') || t.includes('double') || t.includes('number')) {
+      const n = parseFloat(raw);
+      if (Number.isNaN(n)) throw new Error(`'${param.name}' must be a number`);
+      return n;
+    }
+    if (t.includes('bool')) {
+      const v = raw.toLowerCase();
+      if (v === 'true' || v === '1' || v === 'yes') return true;
+      if (v === 'false' || v === '0' || v === 'no' || v === '') return false;
+      throw new Error(`'${param.name}' must be true/false`);
+    }
+    return raw;
+  };
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const args: Record<string, unknown> = {};
+      for (const p of method.parameters) {
+        args[p.name] = coerce(p, values[p.name] ?? '');
+      }
+      onSubmit(args);
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  };
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onCancel()}>
+      <DialogContent className="sm:max-w-md">
+        <form onSubmit={submit}>
+          <DialogHeader>
+            <DialogTitle>Invoke {method.name}(…)</DialogTitle>
+            <DialogDescription>
+              Provide values for each parameter. Types are coerced from text
+              before the call lands on the runtime kernel.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-4">
+            {method.parameters.map((p) => {
+              const inputType = (() => {
+                const t = p.type.toLowerCase();
+                if (t.includes('int') || t.includes('float') || t.includes('double') || t.includes('number')) {
+                  return 'number';
+                }
+                if (t.includes('bool')) return 'text';
+                return 'text';
+              })();
+              return (
+                <div key={p.name} className="space-y-1">
+                  <Label htmlFor={`param-${p.name}`}>
+                    {p.name}
+                    <span className="ml-2 text-xs font-normal text-muted-foreground">({p.type})</span>
+                  </Label>
+                  <Input
+                    id={`param-${p.name}`}
+                    type={inputType}
+                    value={values[p.name] ?? ''}
+                    onChange={(e) =>
+                      setValues((prev) => ({ ...prev, [p.name]: e.target.value }))
+                    }
+                    placeholder={p.type.toLowerCase().includes('bool') ? 'true / false' : ''}
+                    autoFocus={p === method.parameters[0]}
+                  />
+                </div>
+              );
+            })}
+            {error && (
+              <p className="flex items-center gap-1 text-xs text-destructive">
+                <AlertCircle className="size-3.5" />
+                {error}
+              </p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button type="submit">Invoke</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+{% endraw %}

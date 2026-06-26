@@ -1,0 +1,139 @@
+/**
+ * ClassPalette Component
+ * Sidebar with draggable class cards for creating new instances.
+ */
+{% raw %}
+import React from 'react';
+import { GripVertical, Layers } from 'lucide-react';
+import type { ClassMetadata, NodeShape } from '../types/models';
+
+/** Small SVG handle icon for port-class palette tiles. */
+const PortShapeIcon: React.FC<{
+  shape?: NodeShape;
+  fillColor?: string;
+  strokeColor?: string;
+}> = ({ shape, fillColor, strokeColor }) => {
+  const fill = fillColor ?? 'currentColor';
+  const stroke = strokeColor ?? 'currentColor';
+  const sw = 1.5;
+  if (shape === 'diamond') {
+    return (
+      <svg viewBox="0 0 16 16" className="size-5" aria-hidden>
+        <polygon points="8,1 15,8 8,15 1,8" fill={fill} stroke={stroke} strokeWidth={sw} />
+      </svg>
+    );
+  }
+  if (shape === 'rectangle') {
+    return (
+      <svg viewBox="0 0 16 16" className="size-5" aria-hidden>
+        <rect x="2" y="4" width="12" height="8" fill={fill} stroke={stroke} strokeWidth={sw} />
+      </svg>
+    );
+  }
+  if (shape === 'hexagon') {
+    return (
+      <svg viewBox="0 0 16 16" className="size-5" aria-hidden>
+        <polygon points="5,2 11,2 14,8 11,14 5,14 2,8" fill={fill} stroke={stroke} strokeWidth={sw} />
+      </svg>
+    );
+  }
+  /* Default: circle (covers circle, ellipse, rounded_rect, unset) */
+  return (
+    <svg viewBox="0 0 16 16" className="size-5" aria-hidden>
+      <circle cx="8" cy="8" r="6" fill={fill} stroke={stroke} strokeWidth={sw} />
+    </svg>
+  );
+};
+
+interface ClassPaletteProps {
+  classes: ClassMetadata[];
+  onInstanceCreated: () => void;
+}
+
+export const ClassPalette: React.FC<ClassPaletteProps> = ({ classes }) => {
+  // Abstract classes can't be instantiated directly — hide them from the
+  // palette so the user only sees concrete, draggable classes.
+  const concreteClasses = classes.filter((c) => !c.isAbstract);
+
+  const handleDragStart = (e: React.DragEvent, classMetadata: ClassMetadata) => {
+    e.dataTransfer.setData('className', classMetadata.name);
+    e.dataTransfer.effectAllowed = 'copy';
+  };
+
+  return (
+    <aside className="flex w-72 flex-col overflow-hidden border-r border-border/60 bg-card/60">
+      <div className="flex items-center gap-2 border-b border-border/60 px-5 py-3">
+        <Layers className="size-4 text-primary" />
+        <h3 className="font-sans text-sm font-semibold tracking-wide text-foreground">
+          Palette
+        </h3>
+        <span className="ml-auto inline-flex h-5 min-w-[1.5rem] items-center justify-center rounded-full bg-muted px-2 text-[10px] font-semibold tabular-nums text-muted-foreground">
+          {concreteClasses.length}
+        </span>
+      </div>
+
+      <div className="scrollbar-thin flex flex-1 flex-col gap-1.5 overflow-y-auto p-3">
+        {concreteClasses.map((classMetadata) => (
+          <div
+            key={classMetadata.name}
+            draggable
+            onDragStart={(e) => handleDragStart(e, classMetadata)}
+            className="group flex cursor-grab select-none items-center gap-3 rounded-md border border-border/60 bg-background px-3 py-2.5 transition-all hover:-translate-y-0.5 hover:border-primary/60 hover:shadow-sm active:translate-y-0 active:cursor-grabbing"
+            title={`Drag to canvas to create a ${classMetadata.name} instance`}
+          >
+            <div className="flex size-9 flex-shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+              {classMetadata.icon && classMetadata.useIcon !== false ? (
+                <div
+                  className="flex h-full w-full items-center justify-center [&_svg]:h-6 [&_svg]:w-6"
+                  dangerouslySetInnerHTML={{ __html: classMetadata.icon }}
+                />
+              ) : classMetadata.isPort ? (
+                /* Port classes get a small shape icon matching the configured nodeShape */
+                <PortShapeIcon shape={classMetadata.style?.shape} fillColor={classMetadata.style?.fillColor} strokeColor={classMetadata.style?.borderColor} />
+              ) : (
+                <span className="text-sm font-bold">
+                  {classMetadata.name.charAt(0).toUpperCase()}
+                </span>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-sm font-semibold text-foreground">
+                {classMetadata.name}
+              </div>
+              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <span>
+                  {classMetadata.attributes.length} attr
+                  {classMetadata.attributes.length === 1 ? '' : 's'}
+                </span>
+                {classMetadata.associations.length > 0 && (
+                  <>
+                    <span aria-hidden>·</span>
+                    <span>
+                      {classMetadata.associations.length} link
+                      {classMetadata.associations.length === 1 ? '' : 's'}
+                    </span>
+                  </>
+                )}
+                {classMetadata.isContainer && (
+                  <>
+                    <span aria-hidden>·</span>
+                    <span className="font-medium uppercase tracking-wider text-primary/80">
+                      container
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+            <GripVertical className="size-4 flex-shrink-0 text-muted-foreground/60 opacity-0 transition-opacity group-hover:opacity-100" />
+          </div>
+        ))}
+      </div>
+
+      <div className="border-t border-border/60 px-5 py-2.5 text-[11px] leading-snug text-muted-foreground">
+        Drag onto the canvas to create. Connect handles to draw associations,
+        or pick targets in the create dialog.
+      </div>
+    </aside>
+  );
+};
+{% endraw %}

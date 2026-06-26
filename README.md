@@ -1,95 +1,197 @@
-<div align="center">
-  <img src="./docs/source/_static/besser_logo_light.png" alt="BESSER platform" width="500"/>
-</div>
+# Generation of Digital Twin Design Environments with BESSER
 
-[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue?logo=python&logoColor=gold)](https://pypi.org/project/besser/)
-[![PyPI version](https://img.shields.io/pypi/v/besser?logo=pypi&logoColor=white)](https://pypi.org/project/besser/)
-[![PyPI - Downloads](https://static.pepy.tech/badge/besser)](https://pypi.org/project/besser/)
-[![Documentation Status](https://readthedocs.org/projects/besser/badge/?version=latest)](https://besser.readthedocs.io/en/latest/)
-[![PyPI - License](https://img.shields.io/pypi/l/besser)](https://opensource.org/license/MIT)
-[![LinkedIn](https://img.shields.io/badge/-LinkedIn-blue?logo=Linkedin&logoColor=white)](https://www.linkedin.com/company/besser-pearl)
-[![GitHub Repo stars](https://img.shields.io/github/stars/besser-pearl/besser?style=social)](https://star-history.com/#besser-pearl/besser)
+> **Tool Demo — EDTConf 2026**
+> This repository accompanies the tool demonstration paper *"Generation of Digital Twin Design Environments with BESSER"* submitted to the EDTConf 2026.
 
-BESSER is a [low-modeling](https://modeling-languages.com/welcome-to-the-low-modeling-revolution/) [low-code](https://lowcode-book.com/) open-source platform. BESSER (Building bEtter Smart Software fastER) is funded thanks to an [FNR Pearl grant](https://modeling-languages.com/a-smart-low-code-platform-for-smart-software-in-luxembourg-goodbye-barcelona/) led by the [Luxembourg Institute of Science and Technology](https://www.list.lu/) with the participation of the [Snt/University of Luxembourg](https://www.uni.lu/snt-en/) and open to all your contributions!
+## Overview
 
-The BESSER low-code platform is built on top of [B-UML](https://besser.readthedocs.io/en/latest/buml_language.html) our Python-based personal interpretation of a "Universal Modeling Language" (yes, heavily inspired and a simplified version of the better known UML, the Unified Modeling Language).
-With B-UML you can specify your software application and then use any of the [code-generators available](https://besser.readthedocs.io/en/latest/generators.html) to translate your model into executable code suitable for various applications, such as Django web apps or database structures compatible with SQLAlchemy.
+This repository is a fork of the [BESSER](https://github.com/BESSER-PEARL/BESSER) low-code platform extended with a code generator that produces deployable **Digital Twin (DT) Design Environments** from high-level models.
 
-This repository contains the backend foundation for the ecosystem: the
-metamodel, code generators, notations, utilities, and services that drive the web modeling editor and the Python SDK. The editor's frontend is maintained in the companion [BESSER-Web-Modeling-Editor](https://github.com/BESSER-PEARL/BESSER-Web-Modeling-Editor) repository and is included here only as a submodule (at `besser/utilities/web_modeling_editor/frontend`) for local deployments.
+A DT design environment is a full-stack web platform through which engineers can graphically instantiate, configure, simulate, and monitor Digital Twins for a specific domain, without writing any infrastructure code.
 
-**Check out the [BESSER Web Modeling Editor online](https://editor.besser-pearl.org/)**
-![BESSER Web Modeling Editor Demo](./docs/source/img/besser_new.gif)
+### How it works
 
-**Check out the official [documentation](https://besser.readthedocs.io/en/latest/)**
+![Approach overview](figs/overview.png)
 
-## Basic Installation
+The approach separates two roles:
 
-BESSER works with Python 3.10+. We recommend creating a virtual environment (e.g. [venv](https://docs.python.org/3/tutorial/venv.html), [conda](https://docs.conda.io/en/latest/)).
+- **DT platform designer** — a domain expert who, using the BESSER Web Modeling Editor, specifies three models:
+  1. A **class diagram** defining the abstract syntax of the DT domain (classes, attributes, associations, methods)
+  2. **Method definitions** providing the operational semantics (Python methods inside the classes that drive the simulation)
+  3. A **Concrete Syntax** defining the graphical concrete syntax (icons, layout, appearance) for each domain element
 
-The latest stable version of BESSER is available in the Python Package Index (PyPi) and can be installed using
+- **DT engineer** — uses the generated web environment to assemble a DT topology, configure component properties, and drive the simulation
 
-    $ pip install besser
+The BESSER code generator transforms these three models into a fully deployable DT design environment:
 
-BESSER can be used with any of the popular IDEs for Python development such as [VScode](https://code.visualstudio.com/), [PyCharm](https://www.jetbrains.com/pycharm/), [Sublime Text](https://www.sublimetext.com/), etc.
+| Layer | Technology | Description |
+|-------|-----------|-------------|
+| Frontend | React + TypeScript | Visual canvas to drag, connect, and inspect DT instances |
+| Backend | FastAPI (Python) | REST API exposing all platform services |
+| Runtime Engine | — | Simulation heartbeat: invokes class methods at each tick, keeps frontend synchronized |
+| Data Connector | MQTT | Bridges live sensor data from physical assets to DT object properties |
+| History store | InfluxDB | Persists the evolution of system states over time |
 
-## Running BESSER Locally
+> For general documentation on BESSER (installation, SDK, generators, metamodels), refer to the **[official BESSER repository](https://github.com/BESSER-PEARL/BESSER)** and its **[documentation](https://besser.readthedocs.io/)**.
 
-If you are interested in developing new code generators or designing BESSER extensions, you can download and modify the full codebase, including tests and examples.
+---
 
-### Step 1: Clone the repository
+## Repository Contents
 
-    $ git clone https://github.com/BESSER-PEARL/BESSER.git
-    $ cd BESSER
+```
+BESSER4DT/
+├── besser/                         # BESSER platform (extended with DT generation support)
+│   └── utilities/web_modeling_editor/
+│       ├── backend/                # FastAPI backend (generators, converters, validators)
+│       └── frontend/               # Web modeling editor UI (submodule → ivan-alfonso/BESSER-WME-DT)
+└── LuxHyVal/                       # Demo use case: H2Plant (green hydrogen production plant)
+    ├── H2PlantDSL.json             # BESSER project: class diagram + Platform Customization Diagram
+    ├── DT-instances.json           # Pre-built H2Plant DT instance set (ready to import)
+    └── DT-desing-env.zip           # Generated DT design environment (ready to deploy)
+```
 
-### Step 2: Create a virtual environment
+### LuxHyVal — The H2Plant Demo
 
-Run the setup script to create a virtual environment (if not already created), install the requirements, and configure the ``PYTHONPATH``. This ensures compatibility with IDEs (like VSCode) that may not automatically set the ``PYTHONPATH`` for recognizing *besser* as an importable module.
+The `LuxHyVal/` folder contains everything needed to reproduce the paper's running example: a DT design environment for a **photovoltaic-powered green hydrogen production plant**, inspired by the [Luxembourg Hydrogen Valley (LuxHyVal)](https://luxhyval.eu/) project.
 
-    $ python -m venv venv
-    $ venv/Scripts/activate
-    $ pip install -r requirements.txt
+| File | Description |
+|------|-------------|
+| `H2PlantDSL.json` | BESSER project with two diagrams: the `H2_Plant_Metamodel` class diagram (classes such as `SolarFarm`, `PEMElectrolyzer`, `StorageTank`, `Compressor`, `Valve`, `MaterialStream`, `Port`, and their simulation methods) and the Platform Customization Diagram (graphical concrete syntax per class) |
+| `DT-instances.json` | Ready-to-import instance set representing a concrete hydrogen plant configuration (PEM Electrolyzer, material/energy streams, PSA unit, ports, and their associations) |
+| `DT-desing-env.zip` | Full-stack DT design environment generated from the models above (FastAPI + React + InfluxDB + MQTT via Mosquitto) |
 
-### Step 3: Run an example
+---
 
-To verify the setup, you can run a basic example.
+## Step 1 — Deploy the BESSER Modeling Editor
 
-    $ cd tests/BUML/metamodel/structural/library
-    $ python library.py
+Clone this repository (including the frontend submodule) and start the full BESSER stack:
 
-## Examples
-If you want to try examples, check out the [BESSER-examples](https://github.com/BESSER-PEARL/BESSER-examples) repository!
+```bash
+git clone --recurse-submodules https://github.com/ivan-alfonso/BESSER4DT.git
+cd BESSER4DT
+docker compose up --build
+```
 
-## AI Agent Skills
+Once running, open the BESSER Web Modeling Editor in your browser:
 
-Working with BESSER through an AI coding agent (Claude Code, Cursor, Cline, Copilot, …)? The [BESSER Skills](https://github.com/BESSER-PEARL/besser-skills) repository packages BESSER's metamodel, generators, and troubleshooting knowledge as [Agent Skills](https://agentskills.io) so your agent builds *correct, validated* B-UML models — and viewable diagrams — without loading the whole codebase into context.
+```
+http://localhost:3000
+```
 
-    npx skills add BESSER-PEARL/besser-skills --all
+> **Note:** If you cloned without `--recurse-submodules`, initialize the frontend submodule manually:
+> ```bash
+> git submodule update --init --recursive
+> ```
 
-## Contributing
+![BESSER Web Modeling Editor home screen](figs/screenshot_editor_home.png)
 
-We encourage contributions from the community and any comment is welcome!
+---
 
-If you are interested in contributing to this project, please read the [CONTRIBUTING.md](CONTRIBUTING.md) file.
-You can also explore our step-by-step [Contributor Guide](https://besser.readthedocs.io/en/latest/contributor_guide.html) and the dedicated [AI Assistant Guide](https://besser.readthedocs.io/en/latest/ai_assistant_guide.html) to understand the workflows and expectations before opening a pull request.
+## Step 2 — Load the H2PlantDSL Project
 
-## How to cite BESSER
+1. In the BESSER editor, click **"Import Project"** (or the upload icon in the toolbar).
+2. Select the file `LuxHyVal/H2PlantDSL.json`.
+3. The project loads with two diagrams:
+   - **Class Diagram** — the `H2_Plant_Metamodel` structural model with classes, attributes, associations, and simulation methods
+   - **Platform Customization Diagram** — the graphical concrete syntax configuration (icons, layout, appearance) for each domain class
 
-This repository has the CITATION.cff file, which activates the "Cite this repository" button in the About section (right side of the repository). The citation is in APA and BibTex format.
+![H2PlantDSL class diagram in the BESSER editor](figs/domain_model.png)
 
-## Code of Conduct
+![Platform Customization Diagram — graphical concrete syntax configuration](figs/PEMElectrolyzer.png)
 
-At BESSER, our commitment is centered on establishing and maintaining development environments that are welcoming, inclusive, safe and free from all forms of harassment. All participants are expected to voluntarily respect and support our [Code of Conduct](CODE_OF_CONDUCT.md).
+---
 
-## Governance
+## Step 3 — Generate the DT Design Environment
 
-The development of this project follows the governance rules described in the [GOVERNANCE.md](GOVERNANCE.md) document.
+With the `H2PlantDSL` project open in the editor:
 
-## Contact
-You can reach us at: [info@besser-pearl.org](mailto:info@besser-pearl.org)
+1. Click **"Generate"** in the editor toolbar.
+2. Select the **DT Platform** generator.
+3. The editor generates and downloads a ZIP file containing the full-stack DT design environment.
 
-Website: https://besser-pearl.org
+> The pre-generated output is already included at `LuxHyVal/DT-desing-env.zip` — skip to Step 4 to deploy it directly.
+
+![Generator selection panel in the BESSER editor](figs/screenshot_generator_panel.png)
+
+![Generation success notification](figs/screenshot_generation_success.png)
+
+---
+
+## Step 4 — Deploy the Generated DT Design Environment
+
+Extract the ZIP and start it with Docker Compose:
+
+```bash
+cd LuxHyVal
+unzip DT-desing-env.zip -d DT-design-env
+cd DT-design-env
+docker compose up --build
+```
+
+This starts four services:
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| Frontend | http://localhost:3000 | Visual DT instance canvas |
+| Backend API | http://localhost:8000 | FastAPI REST API + Runtime Engine |
+| API Docs | http://localhost:8000/docs | Interactive Swagger UI |
+| InfluxDB | http://localhost:8086 | Time-series history store |
+| Mosquitto | localhost:1883 | Local MQTT broker for live data bindings (optional) |
+
+![Generated DT design environment — empty canvas with the H2Plant component palette](figs/DT_platform_full.png)
+
+---
+
+## Step 5 — Load the DT Instances
+
+Once the platform is running, load the pre-built H2Plant instance set:
+
+1. In the running DT design environment at http://localhost:3000, click **"Import"**.
+2. Select `LuxHyVal/DT-instances.json`.
+3. The canvas populates with the hydrogen plant topology: PEM Electrolyzer, material and energy streams, PSA unit, ports, and their associations.
+
+From here, the DT engineer can:
+- Inspect and edit component properties (e.g., `nominalPower`, `specificEnergyConsumption`) via the property inspector panel
+- **Run** the simulation continuously or advance it **Step by step** — the Runtime Engine invokes all class methods at each tick
+- **Reset** the simulation to the initial state
+- Monitor live values as the system state evolves in real time
+- Connect an external MQTT source for live sensor data via the Data Connector
+
+All state changes are recorded in InfluxDB, enabling historical analysis of system behavior.
+
+![Loaded DT instances on the canvas — hydrogen plant topology](figs/DT_platform.png)
+
+![Property inspector panel with a PEM Electrolyzer instance selected](figs/screenshot_property_inspector.png)
+
+![Simulation running — live state values updating on the canvas](figs/screenshot_simulation_running.png)
+
+---
+
+## Stopping the Services
+
+```bash
+# Stop the BESSER editor
+docker compose down          # run from BESSER4DT/
+
+# Stop the DT design environment
+docker compose down          # run from LuxHyVal/DT-design-env/
+```
+
+---
+
+## Related Resources
+
+| Resource | Link |
+|----------|------|
+| BESSER official repository | https://github.com/BESSER-PEARL/BESSER |
+| BESSER documentation | https://besser.readthedocs.io/ |
+| BESSER web editor (online) | https://editor.besser-pearl.org/ |
+| BESSER web editor fork (this repo's submodule) | https://github.com/ivan-alfonso/BESSER-WME-DT |
+| LuxHyVal project | https://luxhyval.eu/ |
+| BESSER examples | https://github.com/BESSER-PEARL/BESSER-examples |
+
+---
 
 ## License
 
-This project is licensed under the [MIT](https://mit-license.org/) license.
+This repository inherits the [MIT License](https://opensource.org/license/MIT) from the BESSER project.

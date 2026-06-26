@@ -1,0 +1,709 @@
+{
+  "model_name": "H2_Plant_Metamodel",
+  "instances": {
+    "PEMElectrolyzer": [
+      {
+        "id": "pem1",
+        "class_name": "PEMElectrolyzer",
+        "instance_name": "PEM Electrolyzer",
+        "attributes": {
+          "tag": "ABC123",
+          "status": "Operational",
+          "nominalPower": 200,
+          "nominalH2Production": 0,
+          "specificEnergyConsumption": 50,
+          "minLoad": 0.2,
+          "maxLoad": 1,
+          "operatingTemperature": 80,
+          "operatingPressure": 1,
+          "stackVoltage": 0,
+          "stackCurrent": 0,
+          "membraneArea": 1500,
+          "membraneThickness": 0.2
+        },
+        "links": [
+          {
+            "association_name": "equi_ports",
+            "target_class": "Port",
+            "target_id": "p_pem_ein1"
+          },
+          {
+            "association_name": "equi_ports",
+            "target_class": "Port",
+            "target_id": "p_pem_ein2"
+          },
+          {
+            "association_name": "equi_ports",
+            "target_class": "Port",
+            "target_id": "p_pem_hout1"
+          }
+        ],
+        "position": {
+          "x": 460,
+          "y": 250
+        }
+      }
+    ],
+    "MaterialStream": [
+      {
+        "id": "ms1",
+        "class_name": "MaterialStream",
+        "instance_name": "H2_to_PSA",
+        "attributes": {
+          "name": "H2_to_PSA",
+          "tag": "MS001",
+          "temperature": 80,
+          "pressure": 30,
+          "massFlow": 0,
+          "molarFlow": 0,
+          "vaporFraction": 1,
+          "enthalpy": 0,
+          "density": 0.09,
+          "phase": "Gas"
+        },
+        "links": [
+          {
+            "association_name": "source",
+            "target_class": "Port",
+            "target_id": "p_pem_hout1"
+          },
+          {
+            "association_name": "target",
+            "target_class": "Port",
+            "target_id": "p_psa_in"
+          }
+        ],
+        "position": {
+          "x": 645,
+          "y": 215
+        }
+      },
+      {
+        "id": "ms3",
+        "class_name": "MaterialStream",
+        "instance_name": "H2_PSA_to_Tank",
+        "attributes": {
+          "name": "H2_PSA_to_Tank",
+          "tag": "MS003",
+          "temperature": 25,
+          "pressure": 5,
+          "massFlow": 0,
+          "molarFlow": 0,
+          "vaporFraction": 1,
+          "enthalpy": 0,
+          "density": 0.09,
+          "phase": "Gas"
+        },
+        "links": [
+          {
+            "association_name": "source",
+            "target_class": "Port",
+            "target_id": "p_psa_out"
+          },
+          {
+            "association_name": "target",
+            "target_class": "Port",
+            "target_id": "p_comp_in"
+          }
+        ],
+        "position": {
+          "x": 882,
+          "y": 220
+        }
+      },
+      {
+        "id": "ms4",
+        "class_name": "MaterialStream",
+        "instance_name": "H2_Comp_to_Tank",
+        "attributes": {
+          "name": "H2_Comp_to_Tank",
+          "tag": "MS004",
+          "temperature": 40,
+          "pressure": 75,
+          "massFlow": 0,
+          "molarFlow": 0,
+          "vaporFraction": 1,
+          "enthalpy": 0,
+          "density": 0.5,
+          "phase": "Gas"
+        },
+        "links": [
+          {
+            "association_name": "source",
+            "target_class": "Port",
+            "target_id": "p_comp_out"
+          },
+          {
+            "association_name": "target",
+            "target_class": "Port",
+            "target_id": "p_tank_in2"
+          }
+        ],
+        "position": {
+          "x": 882,
+          "y": 390
+        }
+      },
+      {
+        "id": "ms5",
+        "class_name": "MaterialStream",
+        "instance_name": "H2_to_Truck",
+        "attributes": {
+          "name": "H2_to_Truck",
+          "tag": "MS005",
+          "temperature": 25,
+          "pressure": 350,
+          "massFlow": 0,
+          "molarFlow": 0,
+          "vaporFraction": 1,
+          "enthalpy": 0,
+          "density": 2.5,
+          "phase": "Gas"
+        },
+        "links": [
+          {
+            "association_name": "source",
+            "target_class": "Port",
+            "target_id": "p_tank_out1"
+          },
+          {
+            "association_name": "target",
+            "target_class": "Port",
+            "target_id": "p_truck_in"
+          }
+        ],
+        "position": {
+          "x": 1115,
+          "y": 240
+        }
+      },
+      {
+        "id": "ms6",
+        "class_name": "MaterialStream",
+        "instance_name": "H2_to_Delivery",
+        "attributes": {
+          "name": "H2_to_Delivery",
+          "tag": "MS006",
+          "temperature": 25,
+          "pressure": 350,
+          "massFlow": 0,
+          "molarFlow": 0,
+          "vaporFraction": 1,
+          "enthalpy": 0,
+          "density": 2.5,
+          "phase": "Gas"
+        },
+        "links": [
+          {
+            "association_name": "source",
+            "target_class": "Port",
+            "target_id": "p_tank_out2"
+          },
+          {
+            "association_name": "target",
+            "target_class": "Port",
+            "target_id": "p_del_in"
+          }
+        ],
+        "position": {
+          "x": 1115,
+          "y": 350
+        }
+      }
+    ],
+    "EnergyStream": [
+      {
+        "id": "es1",
+        "class_name": "EnergyStream",
+        "instance_name": "solar_energy",
+        "attributes": {
+          "name": "solar_energy",
+          "tag": "ES001",
+          "power": 0,
+          "energyType": "Solar",
+          "voltage": 0,
+          "frequency": 50
+        },
+        "links": [
+          {
+            "association_name": "source",
+            "target_class": "Port",
+            "target_id": "p_sf_out"
+          },
+          {
+            "association_name": "target",
+            "target_class": "Port",
+            "target_id": "p_pem_ein1"
+          }
+        ],
+        "position": {
+          "x": 395,
+          "y": 195
+        }
+      },
+      {
+        "id": "es2",
+        "class_name": "EnergyStream",
+        "instance_name": "wind_energy",
+        "attributes": {
+          "name": "wind_energy",
+          "tag": "ES002",
+          "power": 0,
+          "energyType": "Wind",
+          "voltage": 0,
+          "frequency": 50
+        },
+        "links": [
+          {
+            "association_name": "source",
+            "target_class": "Port",
+            "target_id": "p_wf_out"
+          },
+          {
+            "association_name": "target",
+            "target_class": "Port",
+            "target_id": "p_pem_ein2"
+          }
+        ],
+        "position": {
+          "x": 395,
+          "y": 368
+        }
+      }
+    ],
+    "Port": [
+      {
+        "id": "p_sf_out",
+        "class_name": "Port",
+        "instance_name": "SF_out",
+        "attributes": {
+          "name": "SF_out",
+          "direction": "Outlet",
+          "designPressure": 1,
+          "designTemperature": 25
+        },
+        "links": [],
+        "position": {
+          "x": 370,
+          "y": 155
+        }
+      },
+      {
+        "id": "p_wf_out",
+        "class_name": "Port",
+        "instance_name": "WF_out",
+        "attributes": {
+          "name": "WF_out",
+          "direction": "Outlet",
+          "designPressure": 1,
+          "designTemperature": 25
+        },
+        "links": [],
+        "position": {
+          "x": 370,
+          "y": 430
+        }
+      },
+      {
+        "id": "p_pem_ein1",
+        "class_name": "Port",
+        "instance_name": "PEM_energy_in1",
+        "attributes": {
+          "name": "PEM_energy_in1",
+          "direction": "Inlet",
+          "designPressure": 1,
+          "designTemperature": 25
+        },
+        "links": [],
+        "position": {
+          "x": 430,
+          "y": 250
+        }
+      },
+      {
+        "id": "p_pem_ein2",
+        "class_name": "Port",
+        "instance_name": "PEM_energy_in2",
+        "attributes": {
+          "name": "PEM_energy_in2",
+          "direction": "Inlet",
+          "designPressure": 1,
+          "designTemperature": 25
+        },
+        "links": [],
+        "position": {
+          "x": 430,
+          "y": 310
+        }
+      },
+      {
+        "id": "p_pem_hout1",
+        "class_name": "Port",
+        "instance_name": "PEM_H2_out1",
+        "attributes": {
+          "name": "PEM_H2_out1",
+          "direction": "Outlet",
+          "designPressure": 30,
+          "designTemperature": 80
+        },
+        "links": [],
+        "position": {
+          "x": 615,
+          "y": 250
+        }
+      },
+      {
+        "id": "p_psa_in",
+        "class_name": "Port",
+        "instance_name": "PSA_in",
+        "attributes": {
+          "name": "PSA_in",
+          "direction": "Inlet",
+          "designPressure": 30,
+          "designTemperature": 80
+        },
+        "links": [],
+        "position": {
+          "x": 675,
+          "y": 200
+        }
+      },
+      {
+        "id": "p_psa_out",
+        "class_name": "Port",
+        "instance_name": "PSA_out",
+        "attributes": {
+          "name": "PSA_out",
+          "direction": "Outlet",
+          "designPressure": 5,
+          "designTemperature": 25
+        },
+        "links": [],
+        "position": {
+          "x": 845,
+          "y": 200
+        }
+      },
+      {
+        "id": "p_comp_in",
+        "class_name": "Port",
+        "instance_name": "Comp_in",
+        "attributes": {
+          "name": "Comp_in",
+          "direction": "Inlet",
+          "designPressure": 30,
+          "designTemperature": 80
+        },
+        "links": [],
+        "position": {
+          "x": 690,
+          "y": 420
+        }
+      },
+      {
+        "id": "p_comp_out",
+        "class_name": "Port",
+        "instance_name": "Comp_out",
+        "attributes": {
+          "name": "Comp_out",
+          "direction": "Outlet",
+          "designPressure": 75,
+          "designTemperature": 40
+        },
+        "links": [],
+        "position": {
+          "x": 860,
+          "y": 420
+        }
+      },
+      {
+        "id": "p_tank_in2",
+        "class_name": "Port",
+        "instance_name": "Tank_in2",
+        "attributes": {
+          "name": "Tank_in2",
+          "direction": "Inlet",
+          "designPressure": 75,
+          "designTemperature": 40
+        },
+        "links": [],
+        "position": {
+          "x": 920,
+          "y": 355
+        }
+      },
+      {
+        "id": "p_tank_out1",
+        "class_name": "Port",
+        "instance_name": "Tank_out1",
+        "attributes": {
+          "name": "Tank_out1",
+          "direction": "Outlet",
+          "designPressure": 350,
+          "designTemperature": 25
+        },
+        "links": [],
+        "position": {
+          "x": 1070,
+          "y": 245
+        }
+      },
+      {
+        "id": "p_tank_out2",
+        "class_name": "Port",
+        "instance_name": "Tank_out2",
+        "attributes": {
+          "name": "Tank_out2",
+          "direction": "Outlet",
+          "designPressure": 350,
+          "designTemperature": 25
+        },
+        "links": [],
+        "position": {
+          "x": 1070,
+          "y": 340
+        }
+      },
+      {
+        "id": "p_truck_in",
+        "class_name": "Port",
+        "instance_name": "Truck_in",
+        "attributes": {
+          "name": "Truck_in",
+          "direction": "Inlet",
+          "designPressure": 350,
+          "designTemperature": 25
+        },
+        "links": [],
+        "position": {
+          "x": 1160,
+          "y": 240
+        }
+      },
+      {
+        "id": "p_del_in",
+        "class_name": "Port",
+        "instance_name": "Delivery_in",
+        "attributes": {
+          "name": "Delivery_in",
+          "direction": "Inlet",
+          "designPressure": 350,
+          "designTemperature": 25
+        },
+        "links": [],
+        "position": {
+          "x": 1160,
+          "y": 410
+        }
+      }
+    ],
+    "PSAUnit": [
+      {
+        "id": "psa1",
+        "class_name": "PSAUnit",
+        "instance_name": "PSA purification",
+        "attributes": {
+          "tag": "PSA001",
+          "status": "Operational",
+          "adsorbentType": "ZeoliteA",
+          "cycleTime": 60,
+          "workingPressure": 5,
+          "purgeRatio": 0.3
+        },
+        "links": [
+          {
+            "association_name": "equi_ports",
+            "target_class": "Port",
+            "target_id": "p_psa_in"
+          },
+          {
+            "association_name": "equi_ports",
+            "target_class": "Port",
+            "target_id": "p_psa_out"
+          }
+        ],
+        "position": {
+          "x": 700,
+          "y": 145
+        }
+      }
+    ],
+    "Compressor": [
+      {
+        "id": "comp1",
+        "class_name": "Compressor",
+        "instance_name": "Compressor",
+        "attributes": {
+          "tag": "CMP001",
+          "status": "Operational",
+          "compressionRatio": 2.5,
+          "inletPressure": 30,
+          "outletPressure": 75,
+          "isentropicEfficiency": 0.75,
+          "stages": 2,
+          "power": 0
+        },
+        "links": [
+          {
+            "association_name": "equi_ports",
+            "target_class": "Port",
+            "target_id": "p_comp_in"
+          },
+          {
+            "association_name": "equi_ports",
+            "target_class": "Port",
+            "target_id": "p_comp_out"
+          }
+        ],
+        "position": {
+          "x": 720,
+          "y": 390
+        }
+      }
+    ],
+    "Truck": [
+      {
+        "id": "truck1",
+        "class_name": "Truck",
+        "instance_name": "Truck",
+        "attributes": {
+          "tag": "TR001",
+          "status": "Operational",
+          "capacity": 500,
+          "currentLoad": 0
+        },
+        "links": [
+          {
+            "association_name": "equi_ports",
+            "target_class": "Port",
+            "target_id": "p_truck_in"
+          }
+        ],
+        "position": {
+          "x": 1160,
+          "y": 155
+        }
+      }
+    ],
+    "StorageTank": [
+      {
+        "id": "tank1",
+        "class_name": "StorageTank",
+        "instance_name": "Tank",
+        "attributes": {
+          "tag": "TK001",
+          "status": "Operational",
+          "volume": 10000,
+          "maxPressure": 700,
+          "currentPressure": 350,
+          "currentLevel": 5000,
+          "storagePhase": "Gas",
+          "material": "Steel",
+          "level": 50
+        },
+        "links": [
+          {
+            "association_name": "equi_ports",
+            "target_class": "Port",
+            "target_id": "p_tank_in2"
+          },
+          {
+            "association_name": "equi_ports",
+            "target_class": "Port",
+            "target_id": "p_tank_out1"
+          },
+          {
+            "association_name": "equi_ports",
+            "target_class": "Port",
+            "target_id": "p_tank_out2"
+          }
+        ],
+        "position": {
+          "x": 950,
+          "y": 280
+        }
+      }
+    ],
+    "H2DeliveryPoint": [
+      {
+        "id": "del1",
+        "class_name": "H2DeliveryPoint",
+        "instance_name": "H2 delivery station",
+        "attributes": {
+          "tag": "DS001",
+          "status": "Operational",
+          "tankCapacity": 200,
+          "currentLevel": 100,
+          "dispensingPressure": 350,
+          "dispensingRate": 5
+        },
+        "links": [
+          {
+            "association_name": "equi_ports",
+            "target_class": "Port",
+            "target_id": "p_del_in"
+          }
+        ],
+        "position": {
+          "x": 1160,
+          "y": 430
+        }
+      }
+    ],
+    "SolarFarm": [
+      {
+        "id": "sf1",
+        "class_name": "SolarFarm",
+        "instance_name": "Solar Farm",
+        "attributes": {
+          "tag": "SF001",
+          "status": "Operational",
+          "ratedPower": 0,
+          "availability": 1,
+          "panelCount": 200,
+          "peakPower": 500,
+          "area": 1000
+        },
+        "links": [
+          {
+            "association_name": "equi_ports",
+            "target_class": "Port",
+            "target_id": "p_sf_out"
+          }
+        ],
+        "position": {
+          "x": 252.68194835776075,
+          "y": 114.08022887824404
+        }
+      }
+    ],
+    "WindFarm": [
+      {
+        "id": "wf1",
+        "class_name": "WindFarm",
+        "instance_name": "Wind Farm",
+        "attributes": {
+          "tag": "WF001",
+          "status": "Operational",
+          "ratedPower": 0,
+          "availability": 0.9,
+          "turbineCount": 5,
+          "ratedWindSpeed": 12,
+          "hubHeight": 80,
+          "currentPower": 0
+        },
+        "links": [
+          {
+            "association_name": "equi_ports",
+            "target_class": "Port",
+            "target_id": "p_wf_out"
+          }
+        ],
+        "position": {
+          "x": 250,
+          "y": 385
+        }
+      }
+    ]
+  }
+}

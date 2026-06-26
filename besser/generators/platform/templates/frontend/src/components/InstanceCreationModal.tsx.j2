@@ -1,0 +1,401 @@
+/**
+ * InstanceCreationModal Component
+ * shadcn Dialog-based modal for creating new instances. Beyond plain
+ * attributes, the modal also surfaces every outgoing association of the class
+ * — the user can pick which existing target instances to link to, with form
+ * controls chosen by the association multiplicity.
+ */
+{% raw %}
+import React, { useMemo, useState } from 'react';
+import { AlertCircle } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import type { AssociationMetadata, BaseInstance, ClassMetadata } from '../types/models';
+import { getEnumerationValues, isAssignableTo } from '../types/models';
+
+export interface SelectedLink {
+  associationName: string;
+  targetClass: string;
+  targetId: string;
+}
+
+interface InstanceCreationModalProps {
+  classMetadata: ClassMetadata;
+  /** All known classes; used to resolve association target metadata. */
+  availableClasses: ClassMetadata[];
+  /** Every existing instance in the editor; used to populate target pickers. */
+  existingInstances: BaseInstance[];
+  onSubmit: (
+    instanceName: string,
+    attributes: Record<string, any>,
+    selectedLinks: SelectedLink[],
+  ) => void;
+  onCancel: () => void;
+  /** Hide associations whose target class is, or is an ancestor of, this class.
+   *  Used by the "+" port flow on equipment nodes: the equipment-back link is
+   *  set automatically by the caller, so the field is hidden to avoid a
+   *  redundant or conflicting picker. */
+  hideAssociationsToClass?: string;
+  /** Hide every association flagged ``isSourceEndpoint`` or
+   *  ``isTargetEndpoint``. Used by the port-to-port stream-creation flow:
+   *  the canvas auto-binds those links after submit, so showing them would
+   *  let the user double-pick endpoints. */
+  hideEndpointAssociations?: boolean;
+}
+
+const inputTypeFor = (attrType: string): string => {
+  const t = attrType.toLowerCase();
+  if (t.includes('datetime')) return 'datetime-local';
+  if (t.includes('date')) return 'date';
+  if (t.includes('time')) return 'time';
+  if (t.includes('int') || t.includes('number') || t.includes('float') || t.includes('double'))
+    return 'number';
+  if (t.includes('bool')) return 'checkbox';
+  if (t.includes('email')) return 'email';
+  return 'text';
+};
+
+const multiplicityKind = (
+  m: AssociationMetadata['multiplicity'],
+): 'optional_single' | 'required_single' | 'optional_many' | 'required_many' => {
+  const isMany = m.max > 1 || m.max < 0; // negative max == unlimited (-1) in some converters
+  const isRequired = m.min > 0;
+  if (isMany) return isRequired ? 'required_many' : 'optional_many';
+  return isRequired ? 'required_single' : 'optional_single';
+};
+
+const multiplicityLabel = (m: AssociationMetadata['multiplicity']): string => {
+  const max = m.max < 0 || m.max >= 9999 ? '*' : String(m.max);
+  return `${m.min}..${max}`;
+};
+
+interface AssociationFieldProps {
+  association: AssociationMetadata;
+  candidates: BaseInstance[];
+  /** Currently picked target IDs for this association. */
+  values: string[];
+  onChange: (values: string[]) => void;
+}
+
+/**
+ * Renders the selector for one association. Cardinality drives the control:
+ *   - optional/required single : <select>
+ *   - optional/required many   : checkbox list
+ */
+const AssociationField: React.FC<AssociationFieldProps> = ({
+  association,
+  candidates,
+  values,
+  onChange,
+}) => {
+  const kind = multiplicityKind(association.multiplicity);
+  const fieldId = `assoc-${association.name}`;
+  const required = kind === 'required_single' || kind === 'required_many';
+
+  if (candidates.length === 0) {
+    return (
+      <div className="space-y-1.5 rounded-md border border-dashed border-muted bg-muted/20 p-3">
+        <Label className="text-sm font-medium">
+          {association.targetEndName || association.name}
+          {required && <span className="ml-1 text-destructive">*</span>}
+          <span className="ml-2 text-xs font-normal text-muted-foreground">
+            ({association.targetClass}, {multiplicityLabel(association.multiplicity)})
+          </span>
+        </Label>
+        <p className="text-xs italic text-muted-foreground">
+          No {association.targetClass} instances exist yet — create one first to link it.
+        </p>
+      </div>
+    );
+  }
+
+  if (kind === 'optional_single' || kind === 'required_single') {
+    return (
+      <div className="space-y-1.5">
+        <Label htmlFor={fieldId} className="text-sm font-medium">
+          {association.targetEndName || association.name}
+          {required && <span className="ml-1 text-destructive">*</span>}
+          <span className="ml-2 text-xs font-normal text-muted-foreground">
+            ({association.targetClass}, {multiplicityLabel(association.multiplicity)})
+          </span>
+        </Label>
+        <select
+          id={fieldId}
+          value={values[0] ?? ''}
+          onChange={(e) => onChange(e.target.value ? [e.target.value] : [])}
+          className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          required={required}
+        >
+          <option value="">{required ? '— Select one —' : '— None —'}</option>
+          {candidates.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.instance_name}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
+  }
+
+  // optional_many / required_many → checkbox list with min-1 hint when required
+  const minRequired = association.multiplicity.min;
+  const tooFew = required && values.length < minRequired;
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-sm font-medium">
+        {association.targetEndName || association.name}
+        {required && <span className="ml-1 text-destructive">*</span>}
+        <span className="ml-2 text-xs font-normal text-muted-foreground">
+          ({association.targetClass}, {multiplicityLabel(association.multiplicity)})
+        </span>
+      </Label>
+      <div className="max-h-40 overflow-y-auto rounded-md border border-input bg-background p-2">
+        {candidates.map((c) => {
+          const checked = values.includes(c.id);
+          return (
+            <label
+              key={c.id}
+              className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-accent"
+            >
+              <input
+                type="checkbox"
+                className="size-4 cursor-pointer accent-primary"
+                checked={checked}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    onChange([...values, c.id]);
+                  } else {
+                    onChange(values.filter((v) => v !== c.id));
+                  }
+                }}
+              />
+              <span className="truncate">{c.instance_name}</span>
+            </label>
+          );
+        })}
+      </div>
+      {tooFew && (
+        <p className="flex items-center gap-1 text-xs text-destructive">
+          <AlertCircle className="size-3" />
+          Select at least {minRequired} {minRequired === 1 ? 'item' : 'items'}.
+        </p>
+      )}
+    </div>
+  );
+};
+
+export const InstanceCreationModal: React.FC<InstanceCreationModalProps> = ({
+  classMetadata,
+  availableClasses,
+  existingInstances,
+  onSubmit,
+  onCancel,
+  hideAssociationsToClass,
+  hideEndpointAssociations,
+}) => {
+  const [instanceName, setInstanceName] = useState('');
+  const [attributes, setAttributes] = useState<Record<string, any>>(() => {
+    const initial: Record<string, any> = {};
+    classMetadata.attributes.forEach((attr) => {
+      initial[attr.name] = '';
+    });
+    return initial;
+  });
+  // associationName → list of picked target instance IDs
+  const [selections, setSelections] = useState<Record<string, string[]>>({});
+
+  // Skip self-association rows whose target class doesn't match any existing
+  // class (defensive — shouldn't happen for a well-formed model).
+  // Also hide back-links to a host class that the caller is binding for us
+  // (e.g., the "Equipment" field when the user clicked "+" on a PEMElectrolyzer).
+  const associations = useMemo(
+    () =>
+      classMetadata.associations.filter((a) => {
+        if (!availableClasses.some((c) => c.name === a.targetClass)) return false;
+        if (hideAssociationsToClass && isAssignableTo(hideAssociationsToClass, a.targetClass)) {
+          return false;
+        }
+        if (hideEndpointAssociations && (a.isSourceEndpoint || a.isTargetEndpoint)) {
+          return false;
+        }
+        return true;
+      }),
+    [classMetadata.associations, availableClasses, hideAssociationsToClass, hideEndpointAssociations],
+  );
+
+  const candidatesByAssociation = useMemo(() => {
+    const map: Record<string, BaseInstance[]> = {};
+    for (const assoc of associations) {
+      // Polymorphic: a Compressor counts as an Equipment, etc.
+      map[assoc.name] = existingInstances.filter((i) =>
+        isAssignableTo(i.class_name, assoc.targetClass),
+      );
+    }
+    return map;
+  }, [associations, existingInstances]);
+
+  // Validation: every required association must hit its min multiplicity.
+  const validationError = useMemo<string | null>(() => {
+    for (const assoc of associations) {
+      const min = assoc.multiplicity.min;
+      if (min <= 0) continue;
+      const picked = (selections[assoc.name] ?? []).length;
+      if (picked < min) {
+        return `"${assoc.targetEndName || assoc.name}" requires at least ${min}.`;
+      }
+    }
+    return null;
+  }, [associations, selections]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!instanceName.trim()) return;
+    if (validationError) return;
+
+    const selectedLinks: SelectedLink[] = [];
+    for (const assoc of associations) {
+      const targets = selections[assoc.name] ?? [];
+      for (const targetId of targets) {
+        selectedLinks.push({
+          associationName: assoc.name,
+          targetClass: assoc.targetClass,
+          targetId,
+        });
+      }
+    }
+    onSubmit(instanceName, attributes, selectedLinks);
+  };
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onCancel()}>
+      <DialogContent className="max-h-[85vh] overflow-hidden p-0 sm:max-w-xl">
+        <form onSubmit={handleSubmit} className="flex max-h-[85vh] flex-col">
+          <DialogHeader className="border-b bg-accent/40 px-6 py-5">
+            <DialogTitle className="text-xl">Create {classMetadata.name}</DialogTitle>
+            <DialogDescription>Fill in the details for the new instance.</DialogDescription>
+          </DialogHeader>
+
+          <div className="scrollbar-thin flex-1 space-y-5 overflow-y-auto px-6 py-5">
+            <div className="space-y-2">
+              <Label htmlFor="instance-name">
+                Instance Name <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="instance-name"
+                value={instanceName}
+                onChange={(e) => setInstanceName(e.target.value)}
+                placeholder="Enter instance name"
+                autoFocus
+                required
+              />
+            </div>
+
+            {classMetadata.attributes.length > 0 && (
+              <div className="space-y-4">
+                <h4 className="text-sm font-semibold text-foreground">Attributes</h4>
+                {classMetadata.attributes.map((attr) => {
+                  const inputType = inputTypeFor(attr.type);
+                  const fieldId = `attr-${attr.name}`;
+                  const enumValues = getEnumerationValues(attr.type);
+                  return (
+                    <div key={attr.name} className="space-y-2">
+                      <Label htmlFor={fieldId}>
+                        {attr.name}
+                        <span className="ml-2 text-xs font-normal text-muted-foreground">
+                          ({attr.type})
+                        </span>
+                      </Label>
+                      {enumValues ? (
+                        <select
+                          id={fieldId}
+                          className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                          value={String(attributes[attr.name] ?? '')}
+                          onChange={(e) =>
+                            setAttributes((prev) => ({ ...prev, [attr.name]: e.target.value }))
+                          }
+                        >
+                          <option value="">— Select {attr.type} —</option>
+                          {enumValues.map((v) => (
+                            <option key={v} value={v}>{v}</option>
+                          ))}
+                        </select>
+                      ) : inputType === 'checkbox' ? (
+                        <input
+                          id={fieldId}
+                          type="checkbox"
+                          className="h-5 w-5 cursor-pointer accent-primary"
+                          checked={
+                            attributes[attr.name] === true || attributes[attr.name] === 'true'
+                          }
+                          onChange={(e) =>
+                            setAttributes((prev) => ({ ...prev, [attr.name]: e.target.checked }))
+                          }
+                        />
+                      ) : (
+                        <Input
+                          id={fieldId}
+                          type={inputType}
+                          value={String(attributes[attr.name] ?? '')}
+                          onChange={(e) => {
+                            const value =
+                              inputType === 'number'
+                                ? e.target.value === ''
+                                  ? ''
+                                  : parseFloat(e.target.value)
+                                : e.target.value;
+                            setAttributes((prev) => ({ ...prev, [attr.name]: value }));
+                          }}
+                          placeholder={`Enter ${attr.name}`}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {associations.length > 0 && (
+              <div className="space-y-4">
+                <h4 className="text-sm font-semibold text-foreground">Associations</h4>
+                {associations.map((assoc) => (
+                  <AssociationField
+                    key={assoc.name + ':' + assoc.targetClass}
+                    association={assoc}
+                    candidates={candidatesByAssociation[assoc.name] ?? []}
+                    values={selections[assoc.name] ?? []}
+                    onChange={(vs) => setSelections((prev) => ({ ...prev, [assoc.name]: vs }))}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="border-t bg-accent/40 px-6 py-4">
+            {validationError && (
+              <p className="mr-auto flex items-center gap-1 text-xs text-destructive">
+                <AlertCircle className="size-3.5" />
+                {validationError}
+              </p>
+            )}
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={!instanceName.trim() || validationError !== null}>
+              Create Instance
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+{% endraw %}

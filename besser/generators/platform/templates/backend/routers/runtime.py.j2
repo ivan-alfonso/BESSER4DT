@@ -1,0 +1,94 @@
+"""
+Runtime Router
+
+Exposes the runtime kernel over HTTP. ``/invoke`` is the general entry
+point: call any method on any instance with any args. ``/tick`` is a
+convenience that hardcodes ``step(dt=...)`` for the periodic scheduler
+(Phase 1.2) and matches the conventional UX of a Run/Pause toolbar.
+"""
+
+from typing import Any, Dict, Optional
+
+from fastapi import APIRouter, Body, HTTPException, status
+from pydantic import BaseModel, Field
+
+from runtime import engine
+
+router = APIRouter()
+
+
+class InvokeRequest(BaseModel):
+    """Per-method invocation payload."""
+    class_name: str = Field(..., description="Domain class name of the instance")
+    instance_id: str = Field(..., description="Instance UUID")
+    method_name: str = Field(..., description="Method to dispatch on the instance")
+    args: Dict[str, Any] = Field(default_factory=dict, description="Keyword arguments to pass to the method")
+
+
+class TickRequest(BaseModel):
+    """Scheduler-shaped payload: always ``step(dt=...)``."""
+    class_name: str = Field(..., description="Domain class name of the instance")
+    instance_id: str = Field(..., description="Instance UUID")
+    dt: float = Field(1.0, description="Simulated time delta passed as ``step(dt=...)``")
+
+
+class InvokeResponse(BaseModel):
+    """Outcome of a single invocation."""
+    instance_id: str
+    class_name: str
+    method_name: str
+    args: Dict[str, Any]
+    result: Optional[Any] = None
+    instance: Dict[str, Any]
+
+
+def _to_http(error: Exception) -> HTTPException:
+    """Map engine exceptions to HTTP statuses with targeted messages.
+
+    Keeps the router DRY across ``/invoke`` and ``/tick`` so the frontend
+    sees the same status semantics regardless of which entry point fired.
+    """
+    if isinstance(error, KeyError):
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error))
+    if isinstance(error, ValueError):
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(error))
+    if isinstance(error, AttributeError):
+        return HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(error))
+    if isinstance(error, TypeError):
+        # Wrong/extra/missing kwargs come back as TypeError from the call.
+        return HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(error))
+    return HTTPException(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        detail=f"Invocation failed: {type(error).__name__}: {error}",
+    )
+
+
+@router.post("/invoke", response_model=InvokeResponse)
+async def invoke(payload: InvokeRequest = Body(...)):
+    """Run a single method invocation against one instance."""
+    try:
+        return engine.invoke(
+            class_name=payload.class_name,
+            instance_id=payload.instance_id,
+            method_name=payload.method_name,
+            args=payload.args,
+        )
+    except Exception as e:
+        raise _to_http(e)
+
+
+@router.post("/tick", response_model=InvokeResponse)
+async def tick(payload: TickRequest = Body(...)):
+    """Convenience: ``step(dt=...)`` on a single instance.
+
+    Used by the periodic scheduler and any UI that still wants a single
+    ▶ Tick affordance. Equivalent to invoking ``step`` with ``{"dt": dt}``.
+    """
+    try:
+        return engine.tick(
+            class_name=payload.class_name,
+            instance_id=payload.instance_id,
+            dt=payload.dt,
+        )
+    except Exception as e:
+        raise _to_http(e)

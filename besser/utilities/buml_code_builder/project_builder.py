@@ -22,6 +22,9 @@ from besser.utilities.buml_code_builder.domain_model_builder import (
 from besser.utilities.buml_code_builder.agent_model_builder import agent_model_to_code
 from besser.utilities.buml_code_builder.state_machine_builder import state_machine_to_code
 from besser.utilities.buml_code_builder.quantum_model_builder import quantum_model_to_code
+from besser.utilities.buml_code_builder.platform_customization_builder import (
+    platform_customization_to_code,
+)
 from besser.utilities.buml_code_builder.nn_model_builder import nn_model_to_code
 
 try:
@@ -100,6 +103,14 @@ def project_to_code(project: Project, file_path: str, sm: str = ""):
     except ImportError:
         QuantumCircuit = None
 
+    # Import PlatformCustomizationModel locally
+    try:
+        from besser.BUML.metamodel.platform_customization import PlatformCustomizationModel
+    except ImportError:
+        PlatformCustomizationModel = None
+
+    platform_customization_models = []
+
     # Import NN locally
     try:
         from besser.BUML.metamodel.nn import NN
@@ -125,6 +136,8 @@ def project_to_code(project: Project, file_path: str, sm: str = ""):
             gui_models.append(model)
         elif QuantumCircuit and isinstance(model, QuantumCircuit):
             quantum_models.append(model)
+        elif PlatformCustomizationModel and isinstance(model, PlatformCustomizationModel):
+            platform_customization_models.append(model)
         elif NN and isinstance(model, NN):
             nn_models.append(model)
 
@@ -165,6 +178,7 @@ def project_to_code(project: Project, file_path: str, sm: str = ""):
     n_gui = len(gui_models)
     n_quantum = len(quantum_models)
     n_sm = len(state_machine_models)
+    n_pc = len(platform_customization_models)
     n_nn = len(nn_models)
 
     # Variable names collected for the final Project(...) definition
@@ -347,37 +361,37 @@ def project_to_code(project: Project, file_path: str, sm: str = ""):
                 model_vars.append(var_name)
 
             # ---------------------------------------------------------- #
+            # PLATFORM CUSTOMIZATION MODELS                              #
+            # ---------------------------------------------------------- #
+            for idx, pcm in enumerate(platform_customization_models, start=1):
+                var_name = _suffixed_name("platform_customization", idx, n_pc)
+
+                section = ""
+                if n_pc > 1:
+                    label = getattr(pcm, "name", f"Platform Customization {idx}")
+                    section = f"# PLATFORM CUSTOMIZATION MODEL {idx}: \"{label}\" #\n\n"
+
+                tmp_path = os.path.join(temp_dir, f"platform_customization_{idx}.py")
+                platform_customization_to_code(
+                    model=pcm,
+                    file_path=tmp_path,
+                    model_var_name=var_name,
+                )
+                _write_temp_to_output(tmp_path, f, section_header=section)
+                model_vars.append(var_name)
+
+            # ---------------------------------------------------------- #
             # NN MODELS                                                  #
             # ---------------------------------------------------------- #
-            # Source of titles: json_to_buml_project attaches them to the
-            # Project as ``_nn_diagram_titles`` (id(nn) -> title) so we can
-            # round-trip the user-facing diagram title — the NN metamodel
-            # only stores a sanitized name.
             nn_titles_by_id = getattr(project, "_nn_diagram_titles", {}) or {}
             for idx, nm in enumerate(nn_models, start=1):
-                # Use the static "nn_model" prefix (suffixed when multiple)
-                # so the resulting Python identifier in `models=[...]` matches
-                # SECTION_CONFIG['nn_model'] in the importer. Previously we
-                # used `_name_to_var(nm.name)` which produced names like
-                # `neural_netwo_rk`, which the importer didn't recognise,
-                # silently dropping the diagram on round-trip.
                 var_name = _suffixed_name("nn_model", idx, n_nn)
 
-                # Header is written exclusively by nn_model_to_code to avoid
-                # double-headers (one from project_builder, one from the NN
-                # builder) that confused `_extract_all_sections` and erased
-                # titles even in the multi-NN case.
                 title = nn_titles_by_id.get(id(nm)) or getattr(nm, "name", None)
                 if n_nn > 1 and title and not str(title).strip().startswith(f"NN {idx}"):
-                    # Disambiguate within the file when there are siblings.
                     title = f"{title} ({idx})"
 
                 tmp_path = os.path.join(temp_dir, f"nn_model_{idx}.py")
-                # Thread the suffixed var_name through so the NN builder
-                # writes ``my_nn_1 = NN(...)`` instead of ``my_nn = NN(...)``.
-                # Previously the Project(...) line referenced ``my_nn_1`` but
-                # the actual binding was ``my_nn`` → NameError on exec() when
-                # a project held more than one NN.
                 nn_model_to_code(model=nm, file_path=tmp_path, model_var_name=var_name, title=title)
                 _write_temp_to_output(tmp_path, f)
                 model_vars.append(var_name)

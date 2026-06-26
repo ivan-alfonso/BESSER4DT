@@ -1,0 +1,1813 @@
+/**
+ * InstanceCanvas Component
+ * Main canvas for creating and managing instances using @xyflow/react
+ */
+{% raw %}
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+  ReactFlow,
+  ReactFlowProvider,
+  Node,
+  Edge,
+  Background,
+  BackgroundVariant,
+  ConnectionLineType,
+  MarkerType,
+  MiniMap,
+  useNodesState,
+  useEdgesState,
+  useReactFlow,
+  Connection,
+  ConnectionMode,
+  Panel,
+  NodeChange,
+  type EdgeMarker,
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+import { Eye, EyeOff, Grid3x3, Magnet, Map as MapIcon, Maximize2, Moon, Sun, SunMoon, ZoomIn, ZoomOut } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { InstanceNode } from './InstanceNode';
+import { PropertyEditor } from './PropertyEditor';
+import { AssociationSelector } from './AssociationSelector';
+import { InstanceCreationModal } from './InstanceCreationModal';
+import { StreamClassSelector } from './StreamClassSelector';
+import {
+  DIAGRAM_STYLE,
+  PORT_CLASSES,
+  CONNECTION_CLASSES,
+  isPortClass,
+  isConnectionClass as isConnectionClassMeta,
+  isAssignableTo,
+} from '../types/models';
+import type { BaseInstance, ClassMetadata, AssociationMetadata, EdgeStyle, ArrowStyleName } from '../types/models';
+import * as api from '../api/instances';
+
+const nodeTypes = {
+  instance: InstanceNode,
+};
+
+const DASH_FOR_LINE: Record<string, string | undefined> = {
+  solid: undefined,
+  dashed: '8 4',
+  dotted: '2 4',
+};
+
+/** Default edge routing for the canvas — falls back to ``bezier`` when the
+ *  diagram-level customization didn't set one. Per-association and
+ *  per-connection-class overrides shadow this at edge-build time. */
+const DEFAULT_EDGE_ROUTING = (DIAGRAM_STYLE.lineRouting ?? 'bezier');
+
+/** Map our ``LineRoutingName`` to xyflow's edge type string. xyflow uses
+ *  ``'default'`` for bezier — naming kept consistent with the rest of the
+ *  generator's edge-style fields. */
+function edgeTypeFor(routing: string | undefined): string {
+  switch (routing) {
+    case 'smoothstep': return 'smoothstep';
+    case 'step': return 'step';
+    case 'straight': return 'straight';
+    case 'bezier':
+    default: return 'default';
+  }
+}
+
+/** Map our ``LineRoutingName`` to xyflow's ``ConnectionLineType`` enum used
+ *  for the in-flight drag preview. */
+const CONNECTION_LINE_TYPE: ConnectionLineType =
+  DEFAULT_EDGE_ROUTING === 'smoothstep'
+    ? ConnectionLineType.SmoothStep
+    : DEFAULT_EDGE_ROUTING === 'step'
+      ? ConnectionLineType.Step
+      : DEFAULT_EDGE_ROUTING === 'straight'
+        ? ConnectionLineType.Straight
+        : ConnectionLineType.Bezier;
+
+/** Translate an ArrowStyleName to either an xyflow MarkerType or a custom
+ * url() reference into the shared <defs> block injected by SvgMarkerDefs. */
+function arrowMarker(arrow: ArrowStyleName | undefined): EdgeMarker | string | undefined {
+  if (!arrow || arrow === 'none') return undefined;
+  switch (arrow) {
+    case 'filled_triangle':
+      return { type: MarkerType.ArrowClosed };
+    case 'open_triangle':
+      return { type: MarkerType.Arrow };
+    case 'diamond':
+      return 'url(#platform-diamond)';
+    case 'open_diamond':
+      return 'url(#platform-open-diamond)';
+    case 'circle':
+      return 'url(#platform-circle)';
+    default:
+      return undefined;
+  }
+}
+
+/** SVG <defs> with custom markers (diamond, open diamond, circle). xyflow ships
+ * only Arrow / ArrowClosed natively, so the rest live here and are referenced
+ * from edges via `markerEnd: 'url(#platform-diamond)'` etc. */
+const SvgMarkerDefs: React.FC = () => (
+  <svg style={{ position: 'absolute', width: 0, height: 0 }} aria-hidden>
+    <defs>
+      <marker
+        id="platform-diamond"
+        viewBox="0 0 12 12"
+        refX="11"
+        refY="6"
+        markerWidth="12"
+        markerHeight="12"
+        orient="auto-start-reverse"
+      >
+        <polygon points="0,6 6,0 12,6 6,12" fill="currentColor" />
+      </marker>
+      <marker
+        id="platform-open-diamond"
+        viewBox="0 0 12 12"
+        refX="11"
+        refY="6"
+        markerWidth="12"
+        markerHeight="12"
+        orient="auto-start-reverse"
+      >
+        <polygon
+          points="0,6 6,0 12,6 6,12"
+          fill="hsl(var(--card))"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        />
+      </marker>
+      <marker
+        id="platform-circle"
+        viewBox="0 0 12 12"
+        refX="11"
+        refY="6"
+        markerWidth="12"
+        markerHeight="12"
+        orient="auto-start-reverse"
+      >
+        <circle cx="6" cy="6" r="4.5" fill="currentColor" />
+      </marker>
+    </defs>
+  </svg>
+);
+
+/** Find the innermost container instance whose bounds contain the given canvas coords. */
+function findContainerAt(
+  canvasPoint: { x: number; y: number },
+  nodes: Node[],
+  availableClasses: ClassMetadata[]
+): Node | null {
+  const containers = nodes.filter((n) => {
+    const meta = (n.data as { classMetadata?: ClassMetadata } | undefined)?.classMetadata;
+    return meta?.isContainer;
+  });
+  const hits = containers.filter((n) => {
+    const meta = (n.data as { classMetadata: ClassMetadata }).classMetadata;
+    const size = meta.defaultSize ?? { width: 320, height: 240 };
+    const width = n.measured?.width ?? n.width ?? size.width;
+    const height = n.measured?.height ?? n.height ?? size.height;
+    return (
+      canvasPoint.x >= n.position.x &&
+      canvasPoint.x <= n.position.x + width &&
+      canvasPoint.y >= n.position.y &&
+      canvasPoint.y <= n.position.y + height
+    );
+  });
+  // Innermost == smallest area wins.
+  hits.sort((a, b) => {
+    const am = (a.data as { classMetadata: ClassMetadata }).classMetadata;
+    const bm = (b.data as { classMetadata: ClassMetadata }).classMetadata;
+    const as = (a.measured?.width ?? a.width ?? am.defaultSize?.width ?? 320) *
+      (a.measured?.height ?? a.height ?? am.defaultSize?.height ?? 240);
+    const bs = (b.measured?.width ?? b.width ?? bm.defaultSize?.width ?? 320) *
+      (b.measured?.height ?? b.height ?? bm.defaultSize?.height ?? 240);
+    return as - bs;
+  });
+  // Also exclude availableClasses param from lint by touching it (it is useful
+  // context for future extensions but unused right now).
+  void availableClasses;
+  return hits[0] ?? null;
+}
+
+/** Find the innermost non-port, non-connection node that can host a dropped
+ *  port-class instance. A node is considered a host if its class has at least
+ *  one association whose target is the port class — that's the link we'll
+ *  auto-create after the instance is created. Inheritance is already
+ *  flattened into ``ClassMetadata.associations`` at generation time. */
+function findPortHostAt(
+  canvasPoint: { x: number; y: number },
+  nodes: Node[],
+  portClassName: string,
+  availableClasses: ClassMetadata[],
+): Node | null {
+  const candidates = nodes.filter((n) => {
+    const meta = (n.data as { classMetadata?: ClassMetadata } | undefined)?.classMetadata;
+    if (!meta || meta.isPort || meta.isConnectionClass) return false;
+    // Polymorphic: an association declared with target ``Port`` accepts any
+    // subclass too (e.g. ``WaterPort`` → ``Port``).
+    return meta.associations.some((a) => isAssignableTo(portClassName, a.targetClass));
+  });
+  const hits = candidates.filter((n) => {
+    const meta = (n.data as { classMetadata: ClassMetadata }).classMetadata;
+    const fallback = meta.defaultSize ?? { width: 200, height: 120 };
+    const width = n.measured?.width ?? n.width ?? fallback.width;
+    const height = n.measured?.height ?? n.height ?? fallback.height;
+    return (
+      canvasPoint.x >= n.position.x &&
+      canvasPoint.x <= n.position.x + width &&
+      canvasPoint.y >= n.position.y &&
+      canvasPoint.y <= n.position.y + height
+    );
+  });
+  // Innermost (smallest area) wins, mirroring the container heuristic.
+  hits.sort((a, b) => {
+    const am = (a.data as { classMetadata: ClassMetadata }).classMetadata;
+    const bm = (b.data as { classMetadata: ClassMetadata }).classMetadata;
+    const as = (a.measured?.width ?? a.width ?? am.defaultSize?.width ?? 200) *
+      (a.measured?.height ?? a.height ?? am.defaultSize?.height ?? 120);
+    const bs = (b.measured?.width ?? b.width ?? bm.defaultSize?.width ?? 200) *
+      (b.measured?.height ?? b.height ?? bm.defaultSize?.height ?? 120);
+    return as - bs;
+  });
+  void availableClasses;
+  return hits[0] ?? null;
+}
+
+interface InstanceCanvasProps {
+  instances: BaseInstance[];
+  availableClasses: ClassMetadata[];
+  onInstanceUpdate: (instance: BaseInstance) => void;
+  onInstanceDelete: (className: string, instanceId: string) => void;
+  onLinkCreate: (sourceId: string, targetId: string, label: string) => void;
+  onInstanceCreate: (className: string, position: { x: number; y: number }) => void;
+}
+
+/** Inner component — needs a ReactFlowProvider parent so useReactFlow works. */
+const InstanceCanvasInner: React.FC<InstanceCanvasProps> = ({
+  instances,
+  availableClasses,
+  onInstanceUpdate,
+  onInstanceDelete,
+  onLinkCreate,
+  onInstanceCreate,
+}) => {
+  const reactFlow = useReactFlow();
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+  const [selectedInstance, setSelectedInstance] = useState<BaseInstance | null>(null);
+  const [pendingConnection, setPendingConnection] = useState<{
+    sourceId: string;
+    targetId: string;
+    sourceClass: string;
+    targetClass: string;
+  } | null>(null);
+
+  const nodePositionsRef = React.useRef<Map<string, { x: number; y: number }>>(new Map());
+  // Persists user-driven NodeResizer changes across re-renders. Without it, the
+  // useEffect below would re-apply defaultSize on every instances/availableClasses
+  // change and undo any resize the user just performed.
+  const nodeSizesRef = React.useRef<Map<string, { width: number; height: number }>>(new Map());
+  // Tracks which parent each child had on the previous render so we can detect
+  // newly-nested nodes and reset their stored absolute position (otherwise the
+  // child renders at flow coords instead of relative-to-parent coords).
+  const prevParentByChildRef = React.useRef<Map<string, string>>(new Map());
+
+  // Remember which handle (top/right/bottom/left) the user actually clicked when
+  // they drew each edge, so re-renders don't fall back to the default 'top' handle.
+  // Keyed by `${sourceId}::${targetId}::${associationName}` (same shape as the edge id).
+  // Session-scoped only: the backend Link model doesn't carry handle info, so after
+  // a page reload xyflow picks defaults again.
+  const edgeHandlesRef = React.useRef<
+    Map<string, { sourceHandle?: string; targetHandle?: string }>
+  >(new Map());
+
+  const [createInstanceModal, setCreateInstanceModal] = useState<{
+    className: string;
+    position: { x: number; y: number };
+    parentContainerId?: string;
+    parentContainerClass?: string;
+    /** Set when a port-class instance is dropped on a non-container "host"
+     *  equipment node. We use it to auto-create the equipment→port link after
+     *  the instance is created. */
+    parentHostId?: string;
+    parentHostClass?: string;
+    /** When the host association is pre-determined (e.g., the user clicked the
+     *  "+" affordance and the port class has exactly one matching association
+     *  on the host, OR the popover let them pick one), bypass the auto-detect
+     *  in handleCreateFromModal and just use this. */
+    parentHostAssociation?: string;
+  } | null>(null);
+
+  // Set when a port-to-port drag matches more than one connection-class
+  // candidate. The picker resolves to a className, which then transitions to
+  // ``createStreamModal`` for attribute entry.
+  const [streamClassPicker, setStreamClassPicker] = useState<{
+    candidates: string[];
+    sourcePortInstance: BaseInstance;
+    targetPortInstance: BaseInstance;
+  } | null>(null);
+
+  // Set after the user has chosen a connection class (or when only one matched).
+  // Drives a second InstanceCreationModal instance dedicated to streams; the
+  // endpoint links are auto-bound by handleCreateStreamFromModal so the modal
+  // hides them via ``hideEndpointAssociations``.
+  const [createStreamModal, setCreateStreamModal] = useState<{
+    className: string;
+    sourcePortInstance: BaseInstance;
+    targetPortInstance: BaseInstance;
+  } | null>(null);
+
+  const onDrop = useCallback(
+    (event: React.DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      const className = event.dataTransfer.getData('className');
+      if (!className) return;
+
+      // Convert the viewport-pixel drop point into xyflow's flow coordinate
+      // space — this is what node.position uses, and is the only coordinate
+      // system in which container hit-testing returns the right answer
+      // regardless of the user's pan / zoom state.
+      const flowPoint = reactFlow.screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+      // Center the new node on the cursor (nodes default to ~200x100).
+      const position = { x: flowPoint.x - 100, y: flowPoint.y - 50 };
+
+      // If the drop lands inside a container instance, remember it so we can
+      // auto-create the containment association after the instance is created.
+      const container = findContainerAt(flowPoint, nodes, availableClasses);
+      const parentContainerId = container?.id;
+      const parentContainerClass = (container?.data as { instance?: BaseInstance } | undefined)
+        ?.instance?.class_name;
+
+      // If a port-class instance lands on a non-container equipment node that
+      // has an association to this port class, remember the host so we can
+      // auto-create the owning link. This is the path that turns a freshly-
+      // dropped Port into a handle on its owner equipment.
+      let parentHostId: string | undefined;
+      let parentHostClass: string | undefined;
+      if (PORT_CLASSES[className]) {
+        const host = findPortHostAt(flowPoint, nodes, className, availableClasses);
+        parentHostId = host?.id;
+        parentHostClass = (host?.data as { instance?: BaseInstance } | undefined)
+          ?.instance?.class_name;
+      }
+
+      setCreateInstanceModal({
+        className,
+        position,
+        parentContainerId,
+        parentContainerClass,
+        parentHostId,
+        parentHostClass,
+      });
+    },
+    [nodes, availableClasses, reactFlow]
+  );
+
+  const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+  }, []);
+
+  const rememberEdgeHandles = useCallback(
+    (
+      sourceId: string,
+      targetId: string,
+      associationName: string,
+      sourceHandle?: string | null,
+      targetHandle?: string | null,
+    ) => {
+      if (!sourceHandle && !targetHandle) return;
+      const key = `${sourceId}::${targetId}::${associationName}`;
+      edgeHandlesRef.current.set(key, {
+        sourceHandle: sourceHandle ?? undefined,
+        targetHandle: targetHandle ?? undefined,
+      });
+    },
+    [],
+  );
+
+  /** Pick the side handle ('top'/'right'/'bottom'/'left') with the fewest
+   *  existing edges on `nodeId`, so multiple associations spread around the
+   *  node instead of stacking on the same connection point. */
+  const pickSpreadHandle = useCallback(
+    (nodeId: string, field: 'source' | 'target'): string => {
+      const counts: Record<string, number> = { top: 0, right: 0, bottom: 0, left: 0 };
+      for (const e of reactFlow.getEdges()) {
+        const h = field === 'source' ? e.sourceHandle : e.targetHandle;
+        const n = field === 'source' ? e.source : e.target;
+        if (n === nodeId && h && h in counts) counts[h]++;
+      }
+      return Object.entries(counts).sort(([, a], [, b]) => a - b)[0][0];
+    },
+    [reactFlow],
+  );
+
+  React.useEffect(() => {
+    // === Port & Connection partitioning =====================================
+    // Port-class instances render as Handles on their owner equipment node
+    // when they have an owner. Orphan ports (no owner equipment yet) keep
+    // rendering as ordinary nodes so the user can see what they created and
+    // recover by linking them later.
+    // Connection-class instances similarly become edges only when both
+    // endpoints are resolved to a port with an owner; otherwise they render
+    // as plain nodes.
+    const portInstanceIds = new Set(
+      instances.filter((i) => isPortClass(i.class_name)).map((i) => i.id),
+    );
+    const connectionInstanceIds = new Set(
+      instances.filter((i) => isConnectionClassMeta(i.class_name)).map((i) => i.id),
+    );
+
+    // Map each port instance to its owner equipment instance. The link can be
+    // stored on EITHER side depending on which handle the user dragged from
+    // (or which side the auto-link path used), so we walk both directions:
+    //   A) non-port → port  : source is the owner
+    //   B) port → non-port  : target is the owner
+    // First match wins, mirroring how the container-association detection
+    // is bidirectional too.
+    const portToOwner = new Map<string, string>();
+    for (const inst of instances) {
+      const isPortInstance = portInstanceIds.has(inst.id);
+      if (connectionInstanceIds.has(inst.id)) continue;
+      for (const link of inst.links) {
+        const targetIsPort = portInstanceIds.has(link.target_id);
+        const targetIsConnection = connectionInstanceIds.has(link.target_id);
+        // Direction A: non-port instance has a link to a port.
+        if (!isPortInstance && targetIsPort && !portToOwner.has(link.target_id)) {
+          portToOwner.set(link.target_id, inst.id);
+        }
+        // Direction B: port instance has a link to a non-port, non-connection
+        // instance — that target is the owner equipment.
+        if (isPortInstance && !targetIsPort && !targetIsConnection && !portToOwner.has(inst.id)) {
+          portToOwner.set(inst.id, link.target_id);
+        }
+      }
+    }
+
+    // Group port instances by owner so we can pass them down to the
+    // InstanceNode component as `ports`. Only owned ports are grouped here —
+    // orphan ports stay in the regular node loop.
+    const portsByOwner = new Map<string, BaseInstance[]>();
+    const ownedPortInstanceIds = new Set<string>();
+    for (const port of instances) {
+      if (!portInstanceIds.has(port.id)) continue;
+      const ownerId = portToOwner.get(port.id);
+      if (!ownerId) continue;
+      ownedPortInstanceIds.add(port.id);
+      const list = portsByOwner.get(ownerId) ?? [];
+      list.push(port);
+      portsByOwner.set(ownerId, list);
+    }
+
+    // Resolve each connection instance's source/target ports from its links.
+    // A connection only renders as a synthetic edge if BOTH endpoint ports
+    // are resolved AND each endpoint port has an owner equipment — otherwise
+    // it stays in the regular node loop until the user finishes wiring it.
+    type ConnectionInfo = {
+      conn: BaseInstance;
+      sourcePortId: string | null;
+      targetPortId: string | null;
+    };
+    const connectionInfos: ConnectionInfo[] = [];
+    const renderedConnectionIds = new Set<string>();
+    for (const conn of instances) {
+      if (!connectionInstanceIds.has(conn.id)) continue;
+      const meta = CONNECTION_CLASSES[conn.class_name];
+      if (!meta) continue;
+      let sourcePortId: string | null = null;
+      let targetPortId: string | null = null;
+      for (const link of conn.links) {
+        if (link.association_name === meta.sourceAssociation && portInstanceIds.has(link.target_id)) {
+          sourcePortId = link.target_id;
+        }
+        if (link.association_name === meta.targetAssociation && portInstanceIds.has(link.target_id)) {
+          targetPortId = link.target_id;
+        }
+      }
+      connectionInfos.push({ conn, sourcePortId, targetPortId });
+      if (
+        sourcePortId && targetPortId &&
+        portToOwner.has(sourcePortId) && portToOwner.has(targetPortId)
+      ) {
+        renderedConnectionIds.add(conn.id);
+      }
+    }
+
+    // === Containment partitioning (existing logic) =========================
+    // Identify containment relationships so children get parentId. A link is
+    // treated as containment ONLY when its association is flagged
+    // isContainerAssociation. The detection is bidirectional because the
+    // backend stores each link on whichever side called createLink:
+    //   - dropped on container → link stored on container side
+    //   - chosen via "city: …" picker on Library → link stored on Library side
+    // Either direction must produce the same parent/child nesting.
+    const parentByChild = new Map<string, string>();
+
+    const remember = (childId: string, parentId: string) => {
+      // Don't nest a node under itself (defensive for self-associations).
+      if (childId === parentId) return;
+      if (!parentByChild.has(childId)) parentByChild.set(childId, parentId);
+    };
+
+    for (const instance of instances) {
+      const srcMeta = availableClasses.find((c) => c.name === instance.class_name);
+      for (const link of instance.links) {
+        // Direction A: source is the container, target is the child.
+        if (srcMeta?.isContainer) {
+          const assocMeta = srcMeta.associations.find(
+            (a) => a.name === link.association_name && isAssignableTo(link.target_class, a.targetClass),
+          );
+          if (assocMeta?.isContainerAssociation) {
+            remember(link.target_id, instance.id);
+            continue;
+          }
+        }
+        // Direction B: source is the child, target is the container.
+        const tgtInstance = instances.find((i) => i.id === link.target_id);
+        if (!tgtInstance) continue;
+        const tgtMeta = availableClasses.find((c) => c.name === tgtInstance.class_name);
+        if (!tgtMeta?.isContainer) continue;
+        const reverseAssoc = tgtMeta.associations.find(
+          (a) => a.name === link.association_name && isAssignableTo(instance.class_name, a.targetClass),
+        );
+        if (reverseAssoc?.isContainerAssociation) {
+          remember(instance.id, tgtInstance.id);
+        }
+      }
+    }
+
+    // Detect transitions: any node whose parent assignment changed since the
+    // last render needs its stored absolute position cleared, otherwise xyflow
+    // will treat that absolute position as relative-to-parent and place the
+    // child far outside the container's visible bounds.
+    for (const [childId, parentId] of parentByChild.entries()) {
+      if (prevParentByChildRef.current.get(childId) !== parentId) {
+        nodePositionsRef.current.delete(childId);
+      }
+    }
+    for (const [childId] of prevParentByChildRef.current.entries()) {
+      if (!parentByChild.has(childId)) {
+        // Was nested, no longer nested → drop the now-relative coords too.
+        nodePositionsRef.current.delete(childId);
+      }
+    }
+    prevParentByChildRef.current = parentByChild;
+
+    // Lay out children in a tidy column inside their parent so multiple
+    // siblings don't overlap each other or the container's title bar.
+    const childOrderByParent = new Map<string, number>();
+
+    const renderableInstances = instances.filter(
+      (i) => !ownedPortInstanceIds.has(i.id) && !renderedConnectionIds.has(i.id),
+    );
+
+    const flowNodes: Node[] = renderableInstances.map((instance, index) => {
+      const classMetadata = availableClasses.find((c) => c.name === instance.class_name);
+      const storedPosition = nodePositionsRef.current.get(instance.id);
+      // Backend is the source of truth. The cache (storedPosition) only
+      // fills in when the backend doesn't yet know a position — otherwise
+      // a stale cache value (e.g. from a pre-import drag) would beat the
+      // freshly-loaded position and the canvas would re-render at the old
+      // coordinates instead of the imported ones.
+      const backendPosition = instance.position ?? undefined;
+      const isContainer = Boolean(classMetadata?.isContainer);
+      const parentId = parentByChild.get(instance.id);
+
+      // Containers are always laid out in absolute canvas coords. Children of
+      // a container are positioned relative to the parent; defaults stack
+      // siblings vertically below the container's ~48px title bar.
+      let defaultPosition: { x: number; y: number };
+      if (parentId) {
+        const order = childOrderByParent.get(parentId) ?? 0;
+        childOrderByParent.set(parentId, order + 1);
+        defaultPosition = { x: 24, y: 56 + order * 80 };
+      } else {
+        defaultPosition = {
+          x: 100 + (index % 5) * 250,
+          y: 100 + Math.floor(index / 5) * 200,
+        };
+      }
+      const position = backendPosition ?? storedPosition ?? defaultPosition;
+      // Re-sync the cache so it can't drift away from whatever's authoritative.
+      // During an interactive drag this useEffect doesn't re-run (xyflow updates
+      // its internal node state via onNodesChange instead), so we won't fight
+      // the user mid-drag — but on every re-render driven by ``instances``
+      // changing, the cache lines up with what we just resolved.
+      nodePositionsRef.current.set(instance.id, position);
+
+      const node: Node = {
+        id: instance.id,
+        type: 'instance',
+        position,
+        data: {
+          instance,
+          classMetadata: classMetadata!,
+          ports: portsByOwner.get(instance.id) ?? [],
+          onEdit: () => setSelectedInstance(instance),
+          onDelete: () => onInstanceDelete(instance.class_name, instance.id),
+          onPortClick: (port: BaseInstance) => setSelectedInstance(port),
+          onAddPort: (portClassName: string, associationName: string) =>
+            handleAddPort(instance, portClassName, associationName),
+          candidatesFor: (assoc: AssociationMetadata) =>
+            instances.filter(
+              (i) => i.id !== instance.id && isAssignableTo(i.class_name, assoc.targetClass),
+            ),
+          onPickAssociationTarget: (assoc: AssociationMetadata, target: BaseInstance) => {
+            rememberEdgeHandles(
+              instance.id,
+              target.id,
+              assoc.name,
+              pickSpreadHandle(instance.id, 'source'),
+              pickSpreadHandle(target.id, 'target'),
+            );
+            onLinkCreate(instance.id, target.id, assoc.name);
+          },
+          onCreateAssociationTarget: (assoc: AssociationMetadata) => {
+            const sourcePos = nodePositionsRef.current.get(instance.id) ?? { x: 100, y: 100 };
+            setCreateInstanceModal({
+              className: assoc.targetClass,
+              position: { x: sourcePos.x + 280, y: sourcePos.y },
+              parentHostId: instance.id,
+              parentHostClass: instance.class_name,
+              parentHostAssociation: assoc.name,
+            });
+          },
+        },
+      };
+      if (isContainer) {
+        // Resized dimensions take precedence; fall back to defaultSize from the
+        // customization, otherwise let the InstanceNode div's CSS minWidth /
+        // minHeight govern.
+        const storedSize = nodeSizesRef.current.get(instance.id);
+        const size = storedSize ?? classMetadata?.defaultSize;
+        if (size) {
+          node.width = size.width;
+          node.height = size.height;
+        }
+      }
+      if (parentId) {
+        node.parentId = parentId;
+        node.extent = 'parent';
+      }
+      // Containers stay pinned BEHIND other nodes (zIndex 0) so they don't
+      // visually consume children when selected. Children sit on top
+      // (zIndex 10) so they remain visible no matter the click order.
+      // xyflow respects an explicit zIndex on a node, so selection no longer
+      // bumps the container in front.
+      node.zIndex = isContainer ? 0 : 10;
+      return node;
+    });
+
+    // xyflow requires a parent node to appear earlier in the array than its
+    // children — otherwise parentId binding silently fails and the child is
+    // placed at absolute coords (this is exactly what users see when a
+    // freshly-created child appears beside the container instead of inside).
+    flowNodes.sort((a, b) => (a.parentId ? 1 : 0) - (b.parentId ? 1 : 0));
+
+    setNodes(flowNodes);
+
+    const flowEdges: Edge[] = instances.flatMap((instance) => {
+      // Owned port-class and rendered connection-class instances express their
+      // edges via the synthetic block below — skip their raw links here so we
+      // don't double-emit (or render dead edges that point to filtered-out
+      // nodes). Orphan ports / unresolved connections fall through to the
+      // regular edge loop because they're rendered as plain nodes.
+      if (ownedPortInstanceIds.has(instance.id) || renderedConnectionIds.has(instance.id)) {
+        return [] as Edge[];
+      }
+      return instance.links.flatMap((link) => {
+        // Skip links targeting an owned port (the equipment→port composition
+        // is conveyed by the handle on the equipment border) or a rendered
+        // connection (its endpoints are already shown).
+        if (ownedPortInstanceIds.has(link.target_id) || renderedConnectionIds.has(link.target_id)) {
+          return [] as Edge[];
+        }
+        const targetInstance = instances.find((i) => i.id === link.target_id);
+        const sourceMeta = availableClasses.find((c) => c.name === instance.class_name);
+        const assocMeta: AssociationMetadata | undefined = sourceMeta?.associations.find(
+          (a) => a.name === link.association_name && a.targetClass === (targetInstance?.class_name ?? '')
+        );
+        const edgeStyle: EdgeStyle | undefined = assocMeta?.style;
+        const edgeColor = edgeStyle?.color ?? assocMeta?.edgeColor;
+
+        // Hide the edge whenever this link expresses a containment that's
+        // already shown via parent-child nesting in either direction. Without
+        // the bidirectional check, the link added by "pick city while creating
+        // library" would show as both a nested child AND a stray edge.
+        const targetMeta = availableClasses.find((c) => c.name === targetInstance?.class_name);
+        const isContainmentForward =
+          Boolean(sourceMeta?.isContainer) &&
+          Boolean(assocMeta?.isContainerAssociation) &&
+          parentByChild.get(link.target_id) === instance.id;
+        const reverseAssocMeta = targetMeta?.associations.find(
+          (a) => a.name === link.association_name && a.targetClass === instance.class_name,
+        );
+        const isContainmentReverse =
+          Boolean(targetMeta?.isContainer) &&
+          Boolean(reverseAssocMeta?.isContainerAssociation) &&
+          parentByChild.get(instance.id) === link.target_id;
+        const childOfSource = isContainmentForward || isContainmentReverse;
+
+        const edgeId = `${instance.id}::${link.target_id}::${link.association_name}`;
+        const savedHandles = edgeHandlesRef.current.get(edgeId);
+
+        const lineWidth = edgeStyle?.lineWidth ?? 2;
+        const dash = edgeStyle?.lineStyle ? DASH_FOR_LINE[edgeStyle.lineStyle] : undefined;
+        const lineCss: React.CSSProperties = { strokeWidth: lineWidth };
+        if (edgeColor) lineCss.stroke = edgeColor;
+        if (dash) lineCss.strokeDasharray = dash;
+
+        const labelVisible = edgeStyle?.labelVisible !== false;
+
+        return [{
+          id: edgeId,
+          source: instance.id,
+          target: link.target_id,
+          sourceHandle: savedHandles?.sourceHandle,
+          targetHandle: savedHandles?.targetHandle,
+          label: labelVisible ? link.association_name : undefined,
+          type: edgeTypeFor(edgeStyle?.lineRouting ?? DEFAULT_EDGE_ROUTING),
+          animated: false,
+          hidden: childOfSource,
+          style: lineCss,
+          markerStart: arrowMarker(edgeStyle?.sourceArrow),
+          markerEnd: arrowMarker(edgeStyle?.targetArrow),
+          labelStyle: {
+            fontSize: edgeStyle?.labelFontSize ?? 11,
+            fontWeight: 600,
+            fill: edgeStyle?.labelFontColor,
+          },
+          labelBgStyle: { fill: 'hsl(var(--card))' },
+          labelBgPadding: [6, 3] as [number, number],
+          labelBgBorderRadius: 4,
+          data: {
+            sourceClass: instance.class_name,
+            targetClass: targetInstance?.class_name ?? '',
+            associationName: link.association_name,
+          },
+        } as Edge];
+      });
+    });
+
+    // Synthetic edges from connection-class instances. Source / target nodes
+    // are the equipment that own the source / target ports; the edge binds to
+    // the specific port handle via sourceHandle / targetHandle. We only emit
+    // edges for connections whose two ports are both resolved AND owned —
+    // those are the same connections that were filtered from the node loop.
+    for (const info of connectionInfos) {
+      const { conn, sourcePortId, targetPortId } = info;
+      if (!renderedConnectionIds.has(conn.id)) continue;
+      if (!sourcePortId || !targetPortId) continue;
+      const sourceOwner = portToOwner.get(sourcePortId);
+      const targetOwner = portToOwner.get(targetPortId);
+      if (!sourceOwner || !targetOwner) continue;
+
+      // Pull edge styling from the connection class's ClassMetadata. Walk
+      // the inheritance chain by checking ancestors via the customization-
+      // resolved metadata (subclasses may inherit a base class's style).
+      const connMeta = availableClasses.find((c) => c.name === conn.class_name);
+      const edgeStyle = connMeta?.edgeStyle;
+      const lineWidth = edgeStyle?.lineWidth ?? 2;
+      const dash = edgeStyle?.lineStyle ? DASH_FOR_LINE[edgeStyle.lineStyle] : undefined;
+      const lineCss: React.CSSProperties = { strokeWidth: lineWidth };
+      if (edgeStyle?.color) lineCss.stroke = edgeStyle.color;
+      if (dash) lineCss.strokeDasharray = dash;
+      const labelVisible = edgeStyle?.labelVisible !== false;
+
+      flowEdges.push({
+        id: `connection::${conn.id}`,
+        source: sourceOwner,
+        target: targetOwner,
+        sourceHandle: sourcePortId,
+        targetHandle: targetPortId,
+        label: labelVisible ? conn.instance_name : undefined,
+        type: edgeTypeFor(edgeStyle?.lineRouting ?? DEFAULT_EDGE_ROUTING),
+        animated: false,
+        style: lineCss,
+        labelBgStyle: { fill: 'hsl(var(--card))' },
+        labelBgPadding: [6, 3] as [number, number],
+        labelBgBorderRadius: 4,
+        labelStyle: {
+          fontSize: edgeStyle?.labelFontSize ?? 11,
+          fontWeight: 600,
+          fill: edgeStyle?.labelFontColor,
+        },
+        markerStart: arrowMarker(edgeStyle?.sourceArrow),
+        markerEnd: arrowMarker(edgeStyle?.targetArrow ?? 'filled_triangle'),
+        data: {
+          connectionInstanceId: conn.id,
+          connectionClass: conn.class_name,
+          isConnectionInstanceEdge: true,
+        },
+      } as Edge);
+    }
+
+    setEdges(flowEdges);
+  }, [instances, availableClasses, onInstanceDelete, setNodes, setEdges, rememberEdgeHandles, pickSpreadHandle]);
+
+  // Single-click on a node opens the right-side inspector for that
+  // instance. Double-click on a connection edge (handled separately
+  // via onEdgeDoubleClick) opens the inspector for the connection
+  // instance. Clicking empty canvas closes the inspector.
+  const onNodeClick = useCallback(
+    (_event: React.MouseEvent, node: Node) => {
+      const instanceData = (node.data as { instance?: BaseInstance } | undefined)?.instance;
+      if (instanceData) setSelectedInstance(instanceData);
+    },
+    [],
+  );
+
+  const onPaneClick = useCallback(() => {
+    setSelectedInstance(null);
+  }, []);
+
+  // Persist node deletions to the backend. xyflow's deleteKeyCode removes
+  // the node from local React state but leaves the instance in the store
+  // — the next loadInstances() refetch would resurrect it. Forward each
+  // removed node through onInstanceDelete (the parent App.tsx handler)
+  // so it actually calls DELETE /instances/:cls/:id and reloads. Also
+  // closes the inspector if the deleted node was the selected one.
+  const onNodesDelete = useCallback(
+    (deleted: Node[]) => {
+      for (const node of deleted) {
+        const instanceData = (node.data as { instance?: BaseInstance } | undefined)?.instance;
+        if (!instanceData) continue;
+        onInstanceDelete(instanceData.class_name, instanceData.id);
+        if (selectedInstance?.id === instanceData.id) {
+          setSelectedInstance(null);
+        }
+      }
+    },
+    [onInstanceDelete, selectedInstance],
+  );
+
+  // Persist position on drag-end so the backend store stays in sync with
+  // the canvas. Fires once per gesture (after the user releases the mouse),
+  // so no debounce is needed. The PATCH is fire-and-forget — a failure logs
+  // but doesn't disrupt the canvas, since the ref already has the new value.
+  const onNodeDragStop = useCallback(
+    (_event: MouseEvent | TouchEvent, node: Node) => {
+      const instanceData = (node.data as { instance?: BaseInstance } | undefined)?.instance;
+      if (!instanceData) return;
+      api
+        .updateInstancePosition(instanceData.class_name, instanceData.id, {
+          x: node.position.x,
+          y: node.position.y,
+        })
+        .catch((error) => {
+          console.error('Failed to persist node position:', error);
+        });
+    },
+    [],
+  );
+
+  const handleNodesChange = useCallback(
+    (changes: NodeChange[]) => {
+      changes.forEach((change) => {
+        if (change.type === 'position' && 'position' in change && change.position) {
+          nodePositionsRef.current.set(change.id, change.position);
+        }
+        // NodeResizer dispatches dimensions changes — capture them so the next
+        // re-render of this useEffect doesn't reset the size back to defaultSize.
+        if (
+          change.type === 'dimensions' &&
+          'dimensions' in change &&
+          change.dimensions &&
+          typeof change.dimensions.width === 'number' &&
+          typeof change.dimensions.height === 'number'
+        ) {
+          nodeSizesRef.current.set(change.id, {
+            width: change.dimensions.width,
+            height: change.dimensions.height,
+          });
+        }
+      });
+      onNodesChange(changes);
+    },
+    [onNodesChange]
+  );
+
+  const onConnect = useCallback(
+    async (connection: Connection) => {
+      // Every silent-reject path below carries a console.warn so users
+      // (and we, when debugging) can see the precise reason. xyflow's
+      // own drag-and-drop offers no UI feedback for connections that
+      // pass isValidConnection but then no-op here — a missing log = a
+      // user staring at a dragged line that just disappears.
+      if (!connection.source || !connection.target) {
+        console.warn('[besser4DT] connect rejected: missing source or target', connection);
+        return;
+      }
+      const sourceInstance = instances.find((i) => i.id === connection.source);
+      const targetInstance = instances.find((i) => i.id === connection.target);
+      if (!sourceInstance || !targetInstance) {
+        console.warn('[besser4DT] connect rejected: source or target instance not found', {
+          sourceId: connection.source,
+          targetId: connection.target,
+        });
+        return;
+      }
+
+      // Port-handle path: when both endpoints are port instances (the handle
+      // ids are the port instance UUIDs), defer the actual creation to a
+      // modal flow — first the (optional) StreamClassSelector when several
+      // connection classes match, then InstanceCreationModal for attributes.
+      // The endpoint links get auto-bound by handleCreateStreamFromModal.
+      const sourcePortInstance = connection.sourceHandle
+        ? instances.find((i) => i.id === connection.sourceHandle)
+        : undefined;
+      const targetPortInstance = connection.targetHandle
+        ? instances.find((i) => i.id === connection.targetHandle)
+        : undefined;
+      if (sourcePortInstance && targetPortInstance &&
+          isPortClass(sourcePortInstance.class_name) &&
+          isPortClass(targetPortInstance.class_name)) {
+        // Lenient inlet/outlet check: only reject when BOTH ports declare a
+        // direction and they're equal. Empty / unset directions are allowed
+        // through so users can wire up before filling in port attributes.
+        const sd = String(sourcePortInstance.attributes?.direction ?? '').trim().toLowerCase();
+        const td = String(targetPortInstance.attributes?.direction ?? '').trim().toLowerCase();
+        if (sd && td && sd === td) {
+          console.warn(
+            `[besser4DT] connect rejected: both ports have direction "${sd}". ` +
+            `One must be inlet and the other outlet.`,
+            { sourcePort: sourcePortInstance.instance_name, targetPort: targetPortInstance.instance_name },
+          );
+          alert(
+            `Cannot connect two ${sd} ports.\n\n` +
+            `One port must be inlet and the other outlet.`,
+          );
+          return;
+        }
+
+        // Polymorphic match: a port class matches any connection-class whose
+        // declared portClass is the port's class OR an ancestor. Abstract
+        // classes are excluded — they can be flagged connection-mode in
+        // the customization (so the styling cascades to subclasses) but
+        // they're not instantiable, so showing them as a choice would
+        // dead-end the user on Continue.
+        const candidates = Object.entries(CONNECTION_CLASSES).filter(([className, meta]) => {
+          if (!meta.portClass) return false;
+          const classMeta = availableClasses.find((c) => c.name === className);
+          if (classMeta?.isAbstract) return false;
+          return (
+            isAssignableTo(sourcePortInstance.class_name, meta.portClass) ||
+            isAssignableTo(targetPortInstance.class_name, meta.portClass)
+          );
+        });
+        if (candidates.length === 0) {
+          const available = Object.keys(CONNECTION_CLASSES).join(', ') || '<none>';
+          console.warn(
+            '[besser4DT] connect rejected: no connection-class accepts these port classes.',
+            {
+              sourcePortClass: sourcePortInstance.class_name,
+              targetPortClass: targetPortInstance.class_name,
+              availableConnectionClasses: available,
+              connectionClassPortClasses: Object.entries(CONNECTION_CLASSES).map(
+                ([n, m]) => `${n} (portClass=${m.portClass ?? '<unset>'})`,
+              ),
+            },
+          );
+          alert(
+            `No connection class can link a "${sourcePortInstance.class_name}" port ` +
+            `to a "${targetPortInstance.class_name}" port.\n\n` +
+            `Available connection classes: ${available}.\n\n` +
+            `If you expected a stream class to be available, make sure it's flagged ` +
+            `as a connection class in the platform customization with a matching ` +
+            `portClass.`,
+          );
+          return;
+        }
+        if (candidates.length === 1) {
+          setCreateStreamModal({
+            className: candidates[0][0],
+            sourcePortInstance,
+            targetPortInstance,
+          });
+        } else {
+          setStreamClassPicker({
+            candidates: candidates.map(([name]) => name),
+            sourcePortInstance,
+            targetPortInstance,
+          });
+        }
+        return;
+      }
+
+      // One side wasn't a port instance — common cause: user dropped onto
+      // the equipment body instead of one of its ports. Log + alert so
+      // they know to aim for the port handle.
+      if (
+        (connection.sourceHandle || connection.targetHandle) &&
+        (!sourcePortInstance || !targetPortInstance)
+      ) {
+        console.warn(
+          '[besser4DT] connect: handle id did not resolve to a port instance — ' +
+          'falling through to association path. Likely the drag missed the port handle.',
+          {
+            sourceHandle: connection.sourceHandle,
+            targetHandle: connection.targetHandle,
+            sourcePortFound: Boolean(sourcePortInstance),
+            targetPortFound: Boolean(targetPortInstance),
+          },
+        );
+      }
+
+      const sourceClass = availableClasses.find((c) => c.name === sourceInstance.class_name);
+      const validAssociations =
+        sourceClass?.associations.filter(
+          (assoc) => isAssignableTo(targetInstance.class_name, assoc.targetClass)
+        ) || [];
+
+      // Association edges must use side handles ('top'/'right'/'bottom'/'left').
+      // If the drag started or ended on a port handle (a UUID), discard it so
+      // the edge attaches to the node body, not the port glyph position.
+      const SIDE_SET = new Set(['top', 'right', 'bottom', 'left']);
+      const rawSrc = connection.sourceHandle ?? null;
+      const rawTgt = connection.targetHandle ?? null;
+      const cleanSrc = rawSrc && SIDE_SET.has(rawSrc) ? rawSrc : null;
+      const cleanTgt = rawTgt && SIDE_SET.has(rawTgt) ? rawTgt : null;
+
+      const assocSrcHandle = cleanSrc ?? pickSpreadHandle(connection.source, 'source');
+      const assocTgtHandle = cleanTgt ?? pickSpreadHandle(connection.target, 'target');
+
+      if (validAssociations.length === 1) {
+        const assocName = validAssociations[0].name;
+        rememberEdgeHandles(
+          connection.source,
+          connection.target,
+          assocName,
+          assocSrcHandle,
+          assocTgtHandle,
+        );
+        onLinkCreate(connection.source, connection.target, assocName);
+      } else if (validAssociations.length > 1) {
+        setPendingConnection({
+          sourceId: connection.source,
+          targetId: connection.target,
+          sourceClass: sourceInstance.class_name,
+          targetClass: targetInstance.class_name,
+        });
+        // Stash handles under every valid association; handleAssociationSelect
+        // below picks the right one and the rest are harmless dead entries.
+        for (const assoc of validAssociations) {
+          rememberEdgeHandles(
+            connection.source,
+            connection.target,
+            assoc.name,
+            assocSrcHandle,
+            assocTgtHandle,
+          );
+        }
+      } else {
+        // Last-resort silent path before this fix. The association-based
+        // fallback found nothing: no port-to-port connection class
+        // matched (above) AND no equipment-level association links
+        // these classes either. Log enough to debug from the console.
+        console.warn(
+          '[besser4DT] connect rejected: neither a connection-class nor a ' +
+          'direct association exists between these instances. Make sure the ' +
+          'drag hits actual port handles (the small dark squares) — dropping ' +
+          'on the equipment body falls through to the association path.',
+          {
+            sourceClass: sourceInstance.class_name,
+            targetClass: targetInstance.class_name,
+            sourceHandle: connection.sourceHandle,
+            targetHandle: connection.targetHandle,
+            availableConnectionClasses: Object.keys(CONNECTION_CLASSES),
+          },
+        );
+      }
+    },
+    [instances, availableClasses, onLinkCreate, onInstanceCreate, rememberEdgeHandles, pickSpreadHandle]
+  );
+
+  const handleAssociationSelect = (associationName: string) => {
+    if (pendingConnection) {
+      onLinkCreate(pendingConnection.sourceId, pendingConnection.targetId, associationName);
+    }
+    setPendingConnection(null);
+  };
+
+  /** Double-click on a stream edge opens the property editor for the
+   *  underlying connection-class instance. Single click already selects the
+   *  edge (so the user can press Delete) — double click is the "edit" action. */
+  const onEdgeDoubleClick = useCallback(
+    (_event: React.MouseEvent, edge: Edge) => {
+      const data = edge.data as
+        | { isConnectionInstanceEdge?: boolean; connectionInstanceId?: string }
+        | undefined;
+      if (!data?.isConnectionInstanceEdge || !data.connectionInstanceId) return;
+      const conn = instances.find((i) => i.id === data.connectionInstanceId);
+      if (conn) setSelectedInstance(conn);
+    },
+    [instances],
+  );
+
+  const onEdgesDelete = useCallback(
+    async (deletedEdges: Edge[]) => {
+      let deletedAnyConnection = false;
+      for (const edge of deletedEdges) {
+        const data = edge.data as
+          | {
+              sourceClass?: string;
+              targetClass?: string;
+              associationName?: string;
+              connectionInstanceId?: string;
+              connectionClass?: string;
+              isConnectionInstanceEdge?: boolean;
+            }
+          | undefined;
+
+        // Synthetic connection-class edges represent an instance, not a link.
+        // Deleting just the link would leave the instance in place — so on the
+        // next refetch the edge would re-materialize from `instances`. Delete
+        // the connection instance instead; the backend cascade also removes
+        // its endpoint links. We bypass the parent's onInstanceDelete to skip
+        // its confirm() prompt — pressing DEL on a stream is direct intent.
+        if (data?.isConnectionInstanceEdge && data.connectionClass && data.connectionInstanceId) {
+          try {
+            await api.deleteInstance(data.connectionClass, data.connectionInstanceId);
+            deletedAnyConnection = true;
+          } catch (error) {
+            console.error('Failed to delete connection instance:', error);
+          }
+          continue;
+        }
+
+        if (!data?.sourceClass || !data.targetClass || !data.associationName) continue;
+        try {
+          await api.deleteLink(
+            data.sourceClass,
+            edge.source,
+            data.targetClass,
+            edge.target,
+            data.associationName
+          );
+        } catch (error) {
+          console.error('Failed to delete link:', error);
+        }
+      }
+      // Trigger an instances refetch so the UI mirrors backend state. Without
+      // this, a follow-up createLink could rebuild edges from a stale snapshot
+      // and resurrect the just-deleted stream visually.
+      if (deletedAnyConnection) {
+        onInstanceCreate('', { x: 0, y: 0 });
+      }
+    },
+    [onInstanceCreate]
+  );
+
+  const isValidConnection = useCallback(
+    (connection: Edge | Connection) => {
+      if (!connection.source || !connection.target) return false;
+      const sourceInstance = instances.find((i) => i.id === connection.source);
+      const targetInstance = instances.find((i) => i.id === connection.target);
+      if (!sourceInstance || !targetInstance) return false;
+
+      // Port-handle branch: accept the drag whenever both handles resolve to
+      // port-class instances. Without this xyflow silently vetoes the
+      // connection because the equipment classes themselves rarely declare a
+      // direct association to each other — onConnect then handles the actual
+      // connection-class instantiation and inlet/outlet validation.
+      if (connection.sourceHandle && connection.targetHandle) {
+        const sourcePort = instances.find((i) => i.id === connection.sourceHandle);
+        const targetPort = instances.find((i) => i.id === connection.targetHandle);
+        if (sourcePort && targetPort &&
+            isPortClass(sourcePort.class_name) &&
+            isPortClass(targetPort.class_name)) {
+          return true;
+        }
+      }
+
+      const sourceClass = availableClasses.find((c) => c.name === sourceInstance.class_name);
+      if (!sourceClass) return false;
+      return sourceClass.associations.some(
+        (a) => isAssignableTo(targetInstance.class_name, a.targetClass)
+      );
+    },
+    [instances, availableClasses]
+  );
+
+  /** Diff `next` selected links against the instance's current outgoing AND
+   * inbound links and fire the appropriate POST/DELETE /links calls. The
+   * inbound side matters when the link was originally created from the other
+   * end (e.g. picking "city: …" while creating a library stores the link on
+   * the library side; un-checking that library from the city's edit modal has
+   * to delete it from the library's side). */
+  const reconcileLinks = useCallback(
+    async (
+      instance: BaseInstance,
+      next: Array<{ associationName: string; targetClass: string; targetId: string }>,
+    ) => {
+      const keyOf = (a: string, t: string) => `${a}::${t}`;
+
+      const directExisting = new Map<string, { link: BaseInstance['links'][number] }>();
+      for (const link of instance.links) {
+        directExisting.set(keyOf(link.association_name, link.target_id), { link });
+      }
+
+      // Build an inverse-existing map: for each (assoc, target_id) where some
+      // OTHER instance has a link pointing to `instance` via the same assoc.
+      const inverseExisting = new Map<
+        string,
+        { otherInstance: BaseInstance; link: BaseInstance['links'][number] }
+      >();
+      for (const other of instances) {
+        if (other.id === instance.id) continue;
+        for (const link of other.links) {
+          if (link.target_id !== instance.id) continue;
+          // The selection on `instance` side keys by (assocName, otherInstance.id),
+          // so use that as the lookup key.
+          inverseExisting.set(keyOf(link.association_name, other.id), { otherInstance: other, link });
+        }
+      }
+
+      const desired = new Set(next.map((l) => keyOf(l.associationName, l.targetId)));
+
+      // Adds: anything the user selected that isn't represented in either direction.
+      for (const sel of next) {
+        const k = keyOf(sel.associationName, sel.targetId);
+        if (directExisting.has(k) || inverseExisting.has(k)) continue;
+        try {
+          await api.createLink({
+            source_class: instance.class_name,
+            source_id: instance.id,
+            target_class: sel.targetClass,
+            target_id: sel.targetId,
+            association_name: sel.associationName,
+          });
+        } catch (error) {
+          console.error('Failed to add link:', error);
+        }
+      }
+      // Direct removes.
+      for (const [k, { link }] of directExisting.entries()) {
+        if (desired.has(k)) continue;
+        try {
+          await api.deleteLink(
+            instance.class_name,
+            instance.id,
+            link.target_class,
+            link.target_id,
+            link.association_name,
+          );
+        } catch (error) {
+          console.error('Failed to remove link:', error);
+        }
+      }
+      // Inverse removes — issue the delete call against the other side.
+      for (const [k, { otherInstance, link }] of inverseExisting.entries()) {
+        if (desired.has(k)) continue;
+        try {
+          await api.deleteLink(
+            otherInstance.class_name,
+            otherInstance.id,
+            link.target_class,
+            link.target_id,
+            link.association_name,
+          );
+        } catch (error) {
+          console.error('Failed to remove inverse link:', error);
+        }
+      }
+    },
+    [instances],
+  );
+
+  const handleUpdateInstance = async (
+    updatedInstance: BaseInstance,
+    selectedLinks: Array<{ associationName: string; targetClass: string; targetId: string }>,
+  ) => {
+    await onInstanceUpdate(updatedInstance);
+    await reconcileLinks(updatedInstance, selectedLinks);
+    setSelectedInstance(null);
+  };
+
+  /** Triggered by the hover-revealed "+" affordance on equipment nodes (see
+   *  AddPortPopover). Opens the standard instance-creation modal pre-bound to
+   *  ``equipment`` via ``associationName``; the port instance and its
+   *  equipment→port link are persisted only after the user submits the form.
+   *  Cancelling the modal leaves no traces — no half-created port. */
+  const handleAddPort = (
+    equipment: BaseInstance,
+    portClassName: string,
+    associationName: string,
+  ) => {
+    setCreateInstanceModal({
+      className: portClassName,
+      position: { x: 0, y: 0 },
+      parentHostId: equipment.id,
+      parentHostClass: equipment.class_name,
+      parentHostAssociation: associationName,
+    });
+  };
+
+  /** Submit handler for the stream-creation modal opened by a port-to-port
+   *  drag. Creates the connection-class instance with the attributes the user
+   *  filled in, then auto-binds the source/target endpoint links. Any
+   *  additional non-endpoint associations the user picked in the modal are
+   *  also created. */
+  const handleCreateStreamFromModal = async (
+    instanceName: string,
+    attributes: Record<string, any>,
+    selectedLinks: Array<{ associationName: string; targetClass: string; targetId: string }>,
+  ) => {
+    if (!createStreamModal) return;
+    const { className, sourcePortInstance, targetPortInstance } = createStreamModal;
+    const meta = CONNECTION_CLASSES[className];
+    if (!meta?.sourceAssociation || !meta?.targetAssociation) {
+      console.error(
+        `Connection class '${className}' has no source/target endpoint associations configured.`,
+      );
+      setCreateStreamModal(null);
+      return;
+    }
+    try {
+      const created = await api.createInstance({
+        class_name: className,
+        instance_name: instanceName,
+        attributes,
+      });
+      if (created?.id) {
+        await api.createLink({
+          source_class: className,
+          source_id: created.id,
+          target_class: sourcePortInstance.class_name,
+          target_id: sourcePortInstance.id,
+          association_name: meta.sourceAssociation,
+        });
+        await api.createLink({
+          source_class: className,
+          source_id: created.id,
+          target_class: targetPortInstance.class_name,
+          target_id: targetPortInstance.id,
+          association_name: meta.targetAssociation,
+        });
+        // Any non-endpoint associations the user picked in the modal — create
+        // those links too so the stream lands fully wired.
+        for (const sel of selectedLinks) {
+          try {
+            await api.createLink({
+              source_class: className,
+              source_id: created.id,
+              target_class: sel.targetClass,
+              target_id: sel.targetId,
+              association_name: sel.associationName,
+            });
+          } catch (error) {
+            console.error('Failed to add link from stream modal selection:', error);
+          }
+        }
+        // Trigger upstream refetch — the synthetic edge appears once the
+        // parent re-fetches instances.
+        onInstanceCreate(className, { x: 0, y: 0 });
+      }
+    } catch (error) {
+      console.error('Failed to create connection-class instance:', error);
+    }
+    setCreateStreamModal(null);
+  };
+
+  const handleCreateFromModal = async (
+    instanceName: string,
+    attributes: Record<string, any>,
+    selectedLinks: Array<{ associationName: string; targetClass: string; targetId: string }>,
+  ) => {
+    if (!createInstanceModal) return;
+    try {
+      const created = await api.createInstance({
+        class_name: createInstanceModal.className,
+        instance_name: instanceName,
+        attributes,
+        // Persist the drop coordinates server-side so the next render uses
+        // them instead of the default grid layout.
+        position: createInstanceModal.position,
+      });
+
+      // First, materialise any links the user picked in the create modal
+      // (target instances chosen via association fields). Each one becomes a
+      // POST /links call.
+      if (created?.id) {
+        for (const sel of selectedLinks) {
+          try {
+            await api.createLink({
+              source_class: createInstanceModal.className,
+              source_id: created.id,
+              target_class: sel.targetClass,
+              target_id: sel.targetId,
+              association_name: sel.associationName,
+            });
+          } catch (error) {
+            console.error('Failed to create link from modal selection:', error);
+          }
+        }
+      }
+
+      // If a port-class instance was dropped on a host equipment node, find
+      // the equipment→port association and auto-create the link. Without
+      // this, the freshly-created port would have no owner and stay as an
+      // orphan node on the canvas instead of becoming a handle on the
+      // equipment border.
+      const { parentHostId, parentHostClass, parentHostAssociation } = createInstanceModal;
+      if (parentHostId && parentHostClass && created?.id) {
+        if (parentHostAssociation) {
+          // The "+" affordance pre-binds the association — skip the heuristic.
+          try {
+            await api.createLink({
+              source_class: parentHostClass,
+              source_id: parentHostId,
+              target_class: createInstanceModal.className,
+              target_id: created.id,
+              association_name: parentHostAssociation,
+            });
+          } catch (error) {
+            console.error('Failed to create equipment→port link:', error);
+          }
+        } else {
+          const hostMeta = availableClasses.find((c) => c.name === parentHostClass);
+          // Polymorphic: pick any association whose target is this class or an ancestor.
+          const hostAssocs = hostMeta?.associations.filter(
+            (a) => isAssignableTo(createInstanceModal.className, a.targetClass),
+          ) ?? [];
+          if (hostAssocs.length === 1) {
+            try {
+              await api.createLink({
+                source_class: parentHostClass,
+                source_id: parentHostId,
+                target_class: createInstanceModal.className,
+                target_id: created.id,
+                association_name: hostAssocs[0].name,
+              });
+            } catch (error) {
+              console.error('Failed to auto-create equipment→port link:', error);
+            }
+          } else if (hostAssocs.length > 1) {
+            // Multiple associations match — surface the picker so the user
+            // chooses (e.g., "inputPorts" vs "outputPorts"). The pending link
+            // gets fulfilled by handleAssociationSelect.
+            setPendingConnection({
+              sourceId: parentHostId,
+              targetId: created.id,
+              sourceClass: parentHostClass,
+              targetClass: createInstanceModal.className,
+            });
+          }
+          // hostAssocs.length === 0: nothing to do — host has no association
+          // to this port class. The port will render as an orphan node and the
+          // user can wire it manually via the property panel.
+        }
+      }
+
+      // If dropped inside a container, auto-create the containment association.
+      // Only associations marked isContainerAssociation are considered — that's
+      // how the user opts in to the "drop = link" behavior per association.
+      const { parentContainerId, parentContainerClass, className } = createInstanceModal;
+      if (parentContainerId && parentContainerClass && created?.id) {
+        const parentMeta = availableClasses.find((c) => c.name === parentContainerClass);
+        const containerAssocs = parentMeta?.associations.filter(
+          (a) => isAssignableTo(className, a.targetClass) && a.isContainerAssociation,
+        ) ?? [];
+        if (containerAssocs.length === 1) {
+          try {
+            await api.createLink({
+              source_class: parentContainerClass,
+              source_id: parentContainerId,
+              target_class: className,
+              target_id: created.id,
+              association_name: containerAssocs[0].name,
+            });
+          } catch (error) {
+            console.error('Failed to auto-create containment link:', error);
+          }
+        } else if (containerAssocs.length > 1) {
+          setPendingConnection({
+            sourceId: parentContainerId,
+            targetId: created.id,
+            sourceClass: parentContainerClass,
+            targetClass: className,
+          });
+        }
+        // containerAssocs.length === 0: source class is a container but no
+        // association is flagged as container — the user must wire the link
+        // explicitly. Silent no-op.
+      }
+
+      onInstanceCreate(createInstanceModal.className, createInstanceModal.position);
+    } catch (error) {
+      console.error('Failed to create instance:', error);
+    }
+    setCreateInstanceModal(null);
+  };
+
+  // Diagram-style values are the *initial* state; user toggles override at
+  // runtime via the toolbar panel below the xyflow Controls.
+  const [gridVisible, setGridVisible] = useState<boolean>(DIAGRAM_STYLE.gridVisible !== false);
+  const [snapEnabled, setSnapEnabled] = useState<boolean>(Boolean(DIAGRAM_STYLE.snapToGrid));
+  const [minimapVisible, setMinimapVisible] = useState<boolean>(false);
+  const [showClassNames, setShowClassNames] = useState<boolean>(true);
+  // Runtime settings — seeded from generation-time DIAGRAM_STYLE, mutable by operator.
+  const gridSize = DIAGRAM_STYLE.gridSize ?? 24;
+  const [bgColor, setBgColor] = useState<string>(DIAGRAM_STYLE.backgroundColor ?? '');
+  const [theme, setTheme] = useState<string>(DIAGRAM_STYLE.theme ?? 'auto');
+  const cycleTheme = () => setTheme((t) => t === 'auto' ? 'light' : t === 'light' ? 'dark' : 'auto');
+
+  // Apply theme changes to the document root so the whole app updates live.
+  useEffect(() => {
+    const root = document.documentElement;
+    const apply = (dark: boolean) => root.classList.toggle('dark', dark);
+    if (theme === 'dark') { apply(true); return; }
+    if (theme === 'light') { apply(false); return; }
+    // 'auto': follow OS preference
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    apply(media.matches);
+    const listener = (e: MediaQueryListEvent) => apply(e.matches);
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
+  }, [theme]);
+
+  const handleFitToView = useCallback(() => {
+    // When at least one node is selected, fit just to those; otherwise fit
+    // to everything. Matches typical IDE behavior (Ctrl+. in some editors).
+    const selected = nodes.filter((n) => n.selected);
+    if (selected.length > 0) {
+      reactFlow.fitView({ nodes: selected, padding: 0.2, duration: 250 });
+    } else {
+      reactFlow.fitView({ padding: 0.2, duration: 250 });
+    }
+  }, [reactFlow, nodes]);
+
+  const wrapperStyle: React.CSSProperties = {};
+  if (bgColor) wrapperStyle.backgroundColor = bgColor;
+
+  return (
+    <div
+      className={cn('relative flex h-full w-full flex-1', !showClassNames && '[&_.class-name-chip]:hidden')}
+      style={wrapperStyle}
+    >
+      <SvgMarkerDefs />
+      <div className="flex-1" onDrop={onDrop} onDragOver={onDragOver}>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={handleNodesChange}
+          onNodeDragStop={onNodeDragStop}
+          onNodeClick={onNodeClick}
+          onPaneClick={onPaneClick}
+          onNodesDelete={onNodesDelete}
+          onEdgesChange={onEdgesChange}
+          onEdgesDelete={onEdgesDelete}
+          onEdgeDoubleClick={onEdgeDoubleClick}
+          onConnect={onConnect}
+          isValidConnection={isValidConnection}
+          nodeTypes={nodeTypes}
+          connectionMode={ConnectionMode.Loose}
+          connectionLineType={CONNECTION_LINE_TYPE}
+          defaultEdgeOptions={{ type: edgeTypeFor(DEFAULT_EDGE_ROUTING) }}
+          deleteKeyCode={['Delete', 'Backspace']}
+          edgesFocusable
+          edgesReconnectable={false}
+          fitView
+          snapToGrid={snapEnabled}
+          snapGrid={[gridSize, gridSize]}
+          proOptions={{ hideAttribution: true }}
+        >
+          {/* Unified canvas toolbar — all controls in a single vertical bar.
+              Replaces xyflow <Controls> so zoom/fit live here too. */}
+          <Panel position="bottom-left" className="!bottom-[15px] !left-[15px]">
+            <div className="flex flex-col gap-0.5 rounded-md border border-border bg-card p-1 shadow-sm">
+              {/* View toggles */}
+              <button
+                type="button"
+                onClick={() => setGridVisible((v) => !v)}
+                title={gridVisible ? 'Hide grid' : 'Show grid'}
+                aria-pressed={gridVisible}
+                className={cn(
+                  'flex h-7 w-7 items-center justify-center rounded transition-colors hover:bg-accent',
+                  gridVisible ? 'text-primary' : 'text-muted-foreground',
+                )}
+              >
+                <Grid3x3 className="size-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setSnapEnabled((v) => !v)}
+                title={snapEnabled ? 'Disable snap-to-grid' : 'Enable snap-to-grid'}
+                aria-pressed={snapEnabled}
+                className={cn(
+                  'flex h-7 w-7 items-center justify-center rounded transition-colors hover:bg-accent',
+                  snapEnabled ? 'text-primary' : 'text-muted-foreground',
+                )}
+              >
+                <Magnet className="size-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setMinimapVisible((v) => !v)}
+                title={minimapVisible ? 'Hide minimap' : 'Show minimap'}
+                aria-pressed={minimapVisible}
+                className={cn(
+                  'flex h-7 w-7 items-center justify-center rounded transition-colors hover:bg-accent',
+                  minimapVisible ? 'text-primary' : 'text-muted-foreground',
+                )}
+              >
+                <MapIcon className="size-4" />
+              </button>
+              {/* Class names toggle */}
+              <button
+                type="button"
+                onClick={() => setShowClassNames((v) => !v)}
+                title={showClassNames ? 'Hide class names' : 'Show class names'}
+                aria-pressed={showClassNames}
+                className={cn(
+                  'flex h-7 w-7 items-center justify-center rounded transition-colors hover:bg-accent',
+                  showClassNames ? 'text-primary' : 'text-muted-foreground',
+                )}
+              >
+                {showClassNames ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
+              </button>
+              {/* Theme toggle — cycles auto → light → dark */}
+              <button
+                type="button"
+                onClick={cycleTheme}
+                title={`Theme: ${theme} (click to cycle)`}
+                className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              >
+                {theme === 'dark' ? <Moon className="size-4" /> : theme === 'light' ? <Sun className="size-4" /> : <SunMoon className="size-4" />}
+              </button>
+              {/* Background color — native picker via label trick */}
+              <label
+                title="Canvas background color"
+                className="flex h-7 w-7 cursor-pointer items-center justify-center rounded transition-colors hover:bg-accent"
+              >
+                <div
+                  className="h-4 w-4 rounded border border-border/80 shadow-sm"
+                  style={{ backgroundColor: bgColor || 'transparent' }}
+                />
+                <input
+                  type="color"
+                  className="sr-only"
+                  value={bgColor && /^#[0-9a-fA-F]{6}$/.test(bgColor) ? bgColor : '#ffffff'}
+                  onChange={(e) => setBgColor(e.target.value)}
+                />
+              </label>
+
+              {/* Divider */}
+              <span className="mx-1 h-px bg-border" aria-hidden />
+
+              {/* Zoom / fit controls */}
+              <button
+                type="button"
+                onClick={() => reactFlow.zoomIn({ duration: 200 })}
+                title="Zoom in"
+                className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              >
+                <ZoomIn className="size-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => reactFlow.zoomOut({ duration: 200 })}
+                title="Zoom out"
+                className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              >
+                <ZoomOut className="size-4" />
+              </button>
+              <button
+                type="button"
+                onClick={handleFitToView}
+                title="Fit to view"
+                className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              >
+                <Maximize2 className="size-4" />
+              </button>
+            </div>
+          </Panel>
+
+          {minimapVisible && (
+            <MiniMap
+              className="!bg-card !border !border-border !shadow-sm"
+              nodeColor="hsl(var(--primary))"
+              maskColor="hsl(var(--background) / 0.6)"
+              pannable
+              zoomable
+            />
+          )}
+
+          {gridVisible && (
+            <Background
+              variant={BackgroundVariant.Dots}
+              gap={gridSize}
+              size={1.5}
+              color="hsl(var(--border))"
+            />
+          )}
+
+          {instances.length === 0 && (
+            <Panel position="top-center" className="!pointer-events-none !top-12">
+              <div className="rounded-full border border-border/60 bg-card/80 px-4 py-1.5 text-xs text-muted-foreground shadow-sm backdrop-blur-sm">
+                Drag a class from the left panel to create your first instance.
+              </div>
+            </Panel>
+          )}
+
+          <Panel position="bottom-right">
+            <a
+              href="https://editor.besser-pearl.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-card/70 px-2.5 py-1 text-[10px] uppercase tracking-wider text-muted-foreground shadow-sm backdrop-blur-sm transition-colors hover:border-primary/40 hover:text-primary"
+            >
+              <span>Built with</span>
+              <span className="font-semibold tracking-[0.2em] text-primary group-hover:text-primary">BESSER</span>
+            </a>
+          </Panel>
+        </ReactFlow>
+      </div>
+
+      {/* Right-side inspector — only rendered when an instance is selected so
+          the canvas expands to fill the full width when the panel is closed.
+
+          ``key`` forces a full remount whenever the selected instance
+          changes. Without it, the form's local useState (instanceName,
+          attributes, selections) keeps the OLD instance's data after
+          clicking a different node: the header reads fresh props but
+          the text fields stay stale. Keying by id is the standard
+          React workaround for "reset state on prop change". */}
+      {selectedInstance && (
+        <PropertyEditor
+          key={selectedInstance.id}
+          instance={selectedInstance}
+          classMetadata={
+            availableClasses.find((c) => c.name === selectedInstance.class_name)!
+          }
+          availableClasses={availableClasses}
+          existingInstances={instances}
+          onSave={handleUpdateInstance}
+          onClose={() => setSelectedInstance(null)}
+        />
+      )}
+
+      {pendingConnection && (
+        <AssociationSelector
+          sourceClass={pendingConnection.sourceClass}
+          targetClass={pendingConnection.targetClass}
+          availableClasses={availableClasses}
+          onSelect={handleAssociationSelect}
+          onCancel={() => setPendingConnection(null)}
+        />
+      )}
+
+      {createInstanceModal && (
+        <InstanceCreationModal
+          classMetadata={
+            availableClasses.find((c) => c.name === createInstanceModal.className)!
+          }
+          availableClasses={availableClasses}
+          existingInstances={instances}
+          onSubmit={handleCreateFromModal}
+          onCancel={() => setCreateInstanceModal(null)}
+          hideAssociationsToClass={createInstanceModal.parentHostClass}
+        />
+      )}
+
+      {streamClassPicker && (
+        <StreamClassSelector
+          candidates={streamClassPicker.candidates}
+          availableClasses={availableClasses}
+          onSelect={(className) => {
+            setCreateStreamModal({
+              className,
+              sourcePortInstance: streamClassPicker.sourcePortInstance,
+              targetPortInstance: streamClassPicker.targetPortInstance,
+            });
+            setStreamClassPicker(null);
+          }}
+          onCancel={() => setStreamClassPicker(null)}
+        />
+      )}
+
+      {createStreamModal && (
+        <InstanceCreationModal
+          classMetadata={
+            availableClasses.find((c) => c.name === createStreamModal.className)!
+          }
+          availableClasses={availableClasses}
+          existingInstances={instances}
+          onSubmit={handleCreateStreamFromModal}
+          onCancel={() => setCreateStreamModal(null)}
+          hideEndpointAssociations
+        />
+      )}
+    </div>
+  );
+};
+
+/** Public wrapper that supplies the ReactFlowProvider context the inner
+ * component needs (useReactFlow + screenToFlowPosition). */
+export const InstanceCanvas: React.FC<InstanceCanvasProps> = (props) => (
+  <ReactFlowProvider>
+    <InstanceCanvasInner {...props} />
+  </ReactFlowProvider>
+);
+{% endraw %}

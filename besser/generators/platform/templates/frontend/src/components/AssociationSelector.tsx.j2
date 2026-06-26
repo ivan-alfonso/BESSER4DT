@@ -1,0 +1,92 @@
+/**
+ * AssociationSelector Component
+ * shadcn Dialog-based selector for choosing which association to create
+ * between two instances when multiple are valid.
+ */
+{% raw %}
+import React from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
+import type { AssociationMetadata, ClassMetadata } from '../types/models';
+
+interface AssociationSelectorProps {
+  sourceClass: string;
+  targetClass: string;
+  availableClasses: ClassMetadata[];
+  onSelect: (associationName: string) => void;
+  onCancel: () => void;
+}
+
+export const AssociationSelector: React.FC<AssociationSelectorProps> = ({
+  sourceClass,
+  targetClass,
+  availableClasses,
+  onSelect,
+  onCancel,
+}) => {
+  const sourceClassMetadata = availableClasses.find((c) => c.name === sourceClass);
+  const validAssociations: AssociationMetadata[] =
+    sourceClassMetadata?.associations.filter((a) => a.targetClass === targetClass) ?? [];
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onCancel()}>
+      <DialogContent className="p-0 sm:max-w-lg">
+        <DialogHeader className="border-b bg-accent/40 px-6 py-5">
+          <DialogTitle className="text-xl">Select Association</DialogTitle>
+          <DialogDescription>
+            Choose which association to create between{' '}
+            <span className="font-semibold text-foreground">{sourceClass}</span> and{' '}
+            <span className="font-semibold text-foreground">{targetClass}</span>.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="scrollbar-thin max-h-[60vh] overflow-y-auto px-6 py-5">
+          {validAssociations.length === 0 ? (
+            <div className="rounded-md border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
+              No associations exist between <strong>{sourceClass}</strong> and{' '}
+              <strong>{targetClass}</strong> in the metamodel.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {validAssociations.map((assoc) => (
+                <button
+                  key={assoc.name}
+                  type="button"
+                  onClick={() => onSelect(assoc.name)}
+                  className="group block w-full rounded-lg border-2 border-border bg-card p-4 text-left transition-all hover:border-primary hover:bg-accent"
+                >
+                  <div className="mb-1 text-base font-bold text-foreground">{assoc.name}</div>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span>{sourceClass}</span>
+                    <ArrowRight className="h-3 w-3" />
+                    <span>{targetClass}</span>
+                  </div>
+                  <div className="mt-2 text-[11px] font-semibold text-primary">
+                    Multiplicity: {assoc.multiplicity.min}..
+                    {assoc.multiplicity.max === 9999 ? '*' : assoc.multiplicity.max}
+                    {assoc.targetEndName && ` (${assoc.targetEndName})`}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <DialogFooter className="border-t bg-accent/40 px-6 py-4">
+          <Button variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+{% endraw %}
