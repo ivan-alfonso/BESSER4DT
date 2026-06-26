@@ -1,12 +1,12 @@
 {
   "project": {
-    "id": "project_1778447812496_ddekcmts8",
+    "id": "project_1782252341628_t256lsvd7",
     "type": "Project",
     "schemaVersion": 4,
     "name": "H2PlantDSL",
     "description": "Metamodel for a hydrogen-plant Digital-Twin DSL (Aspen HYSYS / Aspen Plus inspired)",
     "owner": "Iván Alfonso",
-    "createdAt": "2026-05-10T21:16:52.496Z",
+    "createdAt": "2026-06-23T22:05:41.628Z",
     "currentDiagramType": "ClassDiagram",
     "currentDiagramIndices": {
       "ClassDiagram": 0,
@@ -28,8 +28,8 @@
             "version": "3.0.0",
             "type": "ClassDiagram",
             "size": {
-              "width": 5470,
-              "height": 3476
+              "width": 5400,
+              "height": 2378.7999267578125
             },
             "interactive": {
               "elements": {},
@@ -42,8 +42,8 @@
                 "type": "AbstractClass",
                 "owner": null,
                 "bounds": {
-                  "x": -2010.800048828125,
-                  "y": -1419.3999633789062,
+                  "x": -2152.800048828125,
+                  "y": -1169.3999633789062,
                   "width": 240,
                   "height": 200
                 },
@@ -63,8 +63,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0008",
                 "bounds": {
-                  "x": -2010.300048828125,
-                  "y": -1368.8999633789062,
+                  "x": -2152.300048828125,
+                  "y": -1118.8999633789062,
                   "width": 239,
                   "height": 25
                 },
@@ -78,7 +78,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0011": {
                 "id": "attr_0011",
@@ -86,8 +87,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0008",
                 "bounds": {
-                  "x": -2010.300048828125,
-                  "y": -1343.8999633789062,
+                  "x": -2152.300048828125,
+                  "y": -1093.8999633789062,
                   "width": 239,
                   "height": 25
                 },
@@ -101,7 +102,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0012": {
                 "id": "attr_0012",
@@ -109,8 +111,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0008",
                 "bounds": {
-                  "x": -2010.300048828125,
-                  "y": -1318.8999633789062,
+                  "x": -2152.300048828125,
+                  "y": -1068.8999633789062,
                   "width": 239,
                   "height": 25
                 },
@@ -124,7 +126,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0013": {
                 "id": "attr_0013",
@@ -132,8 +135,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0008",
                 "bounds": {
-                  "x": -2010.300048828125,
-                  "y": -1293.8999633789062,
+                  "x": -2152.300048828125,
+                  "y": -1043.8999633789062,
                   "width": 239,
                   "height": 25
                 },
@@ -147,7 +150,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0014": {
                 "id": "attr_0014",
@@ -155,8 +159,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0008",
                 "bounds": {
-                  "x": -2010.300048828125,
-                  "y": -1268.8999633789062,
+                  "x": -2152.300048828125,
+                  "y": -1018.8999633789062,
                   "width": 239,
                   "height": 25
                 },
@@ -170,7 +174,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0015": {
                 "id": "attr_0015",
@@ -178,8 +183,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0008",
                 "bounds": {
-                  "x": -2010.300048828125,
-                  "y": -1243.8999633789062,
+                  "x": -2152.300048828125,
+                  "y": -993.8999633789062,
                   "width": 239,
                   "height": 25
                 },
@@ -193,7 +198,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "class_0016": {
                 "id": "class_0016",
@@ -201,8 +207,8 @@
                 "type": "AbstractClass",
                 "owner": null,
                 "bounds": {
-                  "x": -1046,
-                  "y": -1080,
+                  "x": -1350,
+                  "y": -1153,
                   "width": 240,
                   "height": 100
                 },
@@ -218,8 +224,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0016",
                 "bounds": {
-                  "x": -1045.5,
-                  "y": -1029.5,
+                  "x": -1349.5,
+                  "y": -1102.5,
                   "width": 239,
                   "height": 25
                 },
@@ -233,7 +239,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0019": {
                 "id": "attr_0019",
@@ -241,8 +248,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0016",
                 "bounds": {
-                  "x": -1045.5,
-                  "y": -1004.5,
+                  "x": -1349.5,
+                  "y": -1077.5,
                   "width": 239,
                   "height": 25
                 },
@@ -256,94 +263,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
-              },
-              "class_0056": {
-                "id": "class_0056",
-                "name": "OperatingMode",
-                "type": "Class",
-                "owner": null,
-                "bounds": {
-                  "x": 328,
-                  "y": -1396,
-                  "width": 240,
-                  "height": 115
-                },
-                "attributes": [
-                  "attr_0057",
-                  "attr_0058",
-                  "attr_0059"
-                ],
-                "methods": []
-              },
-              "attr_0057": {
-                "id": "attr_0057",
-                "name": "name",
-                "type": "ClassAttribute",
-                "owner": "class_0056",
-                "bounds": {
-                  "x": 328.5,
-                  "y": -1355.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "str",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": false,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
-              },
-              "attr_0058": {
-                "id": "attr_0058",
-                "name": "modeType",
-                "type": "ClassAttribute",
-                "owner": "class_0056",
-                "bounds": {
-                  "x": 328.5,
-                  "y": -1330.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "OperatingModeType",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": false,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
-              },
-              "attr_0059": {
-                "id": "attr_0059",
-                "name": "description",
-                "type": "ClassAttribute",
-                "owner": "class_0056",
-                "bounds": {
-                  "x": 328.5,
-                  "y": -1305.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "str",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": true,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "class_0065": {
                 "id": "class_0065",
@@ -351,8 +272,8 @@
                 "type": "AbstractClass",
                 "owner": null,
                 "bounds": {
-                  "x": -1847,
-                  "y": -1054,
+                  "x": -1848,
+                  "y": -894,
                   "width": 240,
                   "height": 50
                 },
@@ -365,8 +286,8 @@
                 "type": "AbstractClass",
                 "owner": null,
                 "bounds": {
-                  "x": -2187,
-                  "y": -1062,
+                  "x": -2153,
+                  "y": -780,
                   "width": 240,
                   "height": 100
                 },
@@ -382,8 +303,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0066",
                 "bounds": {
-                  "x": -2186.5,
-                  "y": -1011.5,
+                  "x": -2152.5,
+                  "y": -729.5,
                   "width": 239,
                   "height": 25
                 },
@@ -397,7 +318,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0068": {
                 "id": "attr_0068",
@@ -405,8 +327,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0066",
                 "bounds": {
-                  "x": -2186.5,
-                  "y": -986.5,
+                  "x": -2152.5,
+                  "y": -704.5,
                   "width": 239,
                   "height": 25
                 },
@@ -420,7 +342,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "class_0069": {
                 "id": "class_0069",
@@ -428,8 +351,8 @@
                 "type": "Class",
                 "owner": null,
                 "bounds": {
-                  "x": -247.2000732421875,
-                  "y": -1279.9998168945312,
+                  "x": -1064.2000732421875,
+                  "y": -1105.9998168945312,
                   "width": 240,
                   "height": 240
                 },
@@ -451,8 +374,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0069",
                 "bounds": {
-                  "x": -246.7000732421875,
-                  "y": -1239.4998168945312,
+                  "x": -1063.7000732421875,
+                  "y": -1065.4998168945312,
                   "width": 239,
                   "height": 25
                 },
@@ -466,7 +389,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0071": {
                 "id": "attr_0071",
@@ -474,8 +398,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0069",
                 "bounds": {
-                  "x": -246.7000732421875,
-                  "y": -1214.4998168945312,
+                  "x": -1063.7000732421875,
+                  "y": -1040.4998168945312,
                   "width": 239,
                   "height": 25
                 },
@@ -489,7 +413,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0072": {
                 "id": "attr_0072",
@@ -497,8 +422,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0069",
                 "bounds": {
-                  "x": -246.7000732421875,
-                  "y": -1189.4998168945312,
+                  "x": -1063.7000732421875,
+                  "y": -1015.4998168945312,
                   "width": 239,
                   "height": 25
                 },
@@ -512,7 +437,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": true
+                "isInput": true,
+                "isStep": false
               },
               "attr_0073": {
                 "id": "attr_0073",
@@ -520,8 +446,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0069",
                 "bounds": {
-                  "x": -246.7000732421875,
-                  "y": -1164.4998168945312,
+                  "x": -1063.7000732421875,
+                  "y": -990.4998168945312,
                   "width": 239,
                   "height": 25
                 },
@@ -535,7 +461,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0074": {
                 "id": "attr_0074",
@@ -543,8 +470,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0069",
                 "bounds": {
-                  "x": -246.7000732421875,
-                  "y": -1139.4998168945312,
+                  "x": -1063.7000732421875,
+                  "y": -965.4998168945312,
                   "width": 239,
                   "height": 25
                 },
@@ -558,7 +485,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0075": {
                 "id": "attr_0075",
@@ -566,8 +494,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0069",
                 "bounds": {
-                  "x": -246.7000732421875,
-                  "y": -1114.4998168945312,
+                  "x": -1063.7000732421875,
+                  "y": -940.4998168945312,
                   "width": 239,
                   "height": 25
                 },
@@ -581,7 +509,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0076": {
                 "id": "attr_0076",
@@ -589,8 +518,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0069",
                 "bounds": {
-                  "x": -246.7000732421875,
-                  "y": -1089.4998168945312,
+                  "x": -1063.7000732421875,
+                  "y": -915.4998168945312,
                   "width": 239,
                   "height": 25
                 },
@@ -604,7 +533,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0077": {
                 "id": "attr_0077",
@@ -612,8 +542,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0069",
                 "bounds": {
-                  "x": -246.7000732421875,
-                  "y": -1064.4998168945312,
+                  "x": -1063.7000732421875,
+                  "y": -890.4998168945312,
                   "width": 239,
                   "height": 25
                 },
@@ -627,7 +557,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "class_0078": {
                 "id": "class_0078",
@@ -635,8 +566,8 @@
                 "type": "Class",
                 "owner": null,
                 "bounds": {
-                  "x": -657,
-                  "y": -1141,
+                  "x": -1350,
+                  "y": -961,
                   "width": 240,
                   "height": 140
                 },
@@ -654,8 +585,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0078",
                 "bounds": {
-                  "x": -656.5,
-                  "y": -1100.5,
+                  "x": -1349.5,
+                  "y": -920.5,
                   "width": 239,
                   "height": 25
                 },
@@ -669,7 +600,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0080": {
                 "id": "attr_0080",
@@ -677,8 +609,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0078",
                 "bounds": {
-                  "x": -656.5,
-                  "y": -1075.5,
+                  "x": -1349.5,
+                  "y": -895.5,
                   "width": 239,
                   "height": 25
                 },
@@ -692,7 +624,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0081": {
                 "id": "attr_0081",
@@ -700,8 +633,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0078",
                 "bounds": {
-                  "x": -656.5,
-                  "y": -1050.5,
+                  "x": -1349.5,
+                  "y": -870.5,
                   "width": 239,
                   "height": 25
                 },
@@ -715,7 +648,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0082": {
                 "id": "attr_0082",
@@ -723,8 +657,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0078",
                 "bounds": {
-                  "x": -656.5,
-                  "y": -1025.5,
+                  "x": -1349.5,
+                  "y": -845.5,
                   "width": 239,
                   "height": 25
                 },
@@ -738,7 +672,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "class_0086": {
                 "id": "class_0086",
@@ -746,8 +681,8 @@
                 "type": "Class",
                 "owner": null,
                 "bounds": {
-                  "x": -1505,
-                  "y": -1116,
+                  "x": -1741,
+                  "y": -1093,
                   "width": 240,
                   "height": 140
                 },
@@ -765,8 +700,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0086",
                 "bounds": {
-                  "x": -1504.5,
-                  "y": -1075.5,
+                  "x": -1740.5,
+                  "y": -1052.5,
                   "width": 239,
                   "height": 25
                 },
@@ -780,7 +715,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0088": {
                 "id": "attr_0088",
@@ -788,8 +724,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0086",
                 "bounds": {
-                  "x": -1504.5,
-                  "y": -1050.5,
+                  "x": -1740.5,
+                  "y": -1027.5,
                   "width": 239,
                   "height": 25
                 },
@@ -803,7 +739,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0089": {
                 "id": "attr_0089",
@@ -811,8 +748,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0086",
                 "bounds": {
-                  "x": -1504.5,
-                  "y": -1025.5,
+                  "x": -1740.5,
+                  "y": -1002.5,
                   "width": 239,
                   "height": 25
                 },
@@ -826,7 +763,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0090": {
                 "id": "attr_0090",
@@ -834,8 +772,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0086",
                 "bounds": {
-                  "x": -1504.5,
-                  "y": -1000.5,
+                  "x": -1740.5,
+                  "y": -977.5,
                   "width": 239,
                   "height": 25
                 },
@@ -849,7 +787,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "class_0103": {
                 "id": "class_0103",
@@ -860,7 +799,7 @@
                   "x": -1847,
                   "y": -762,
                   "width": 240,
-                  "height": 275
+                  "height": 305
                 },
                 "attributes": [
                   "attr_0104",
@@ -873,7 +812,9 @@
                   "attr_0111",
                   "attr_0112"
                 ],
-                "methods": []
+                "methods": [
+                  "1b96a889-ebb1-4cb6-89b7-881baad68372"
+                ]
               },
               "attr_0104": {
                 "id": "attr_0104",
@@ -896,7 +837,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0105": {
                 "id": "attr_0105",
@@ -919,7 +861,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0106": {
                 "id": "attr_0106",
@@ -942,7 +885,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0107": {
                 "id": "attr_0107",
@@ -965,7 +909,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0108": {
                 "id": "attr_0108",
@@ -988,7 +933,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0109": {
                 "id": "attr_0109",
@@ -1011,7 +957,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0110": {
                 "id": "attr_0110",
@@ -1034,7 +981,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0111": {
                 "id": "attr_0111",
@@ -1057,7 +1005,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0112": {
                 "id": "attr_0112",
@@ -1080,7 +1029,32 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
+              },
+              "1b96a889-ebb1-4cb6-89b7-881baad68372": {
+                "id": "1b96a889-ebb1-4cb6-89b7-881baad68372",
+                "name": "+ produce_h2()",
+                "type": "ClassMethod",
+                "owner": "class_0103",
+                "bounds": {
+                  "x": -1846.5,
+                  "y": -486.5,
+                  "width": 239,
+                  "height": 30
+                },
+                "code": "def produce_h2(self):\n    \"\"\"Simulate H2 production based on available electrical power.\n\n    stackCurrent [A]  tracks the electrical load each tick.\n    nominalH2Production [kg/h] shows the instantaneous production rate.\n    operatingPressure [bar] climbs to 30 bar as the system pressurises.\n    \"\"\"\n    import random\n    nom_pwr = float(self.nominalPower or 100.0)      # kW rated\n    min_ld  = float(self.minLoad or 0.2)\n    max_ld  = float(self.maxLoad or 1.0)\n    spec_e  = float(self.specificEnergyConsumption or 50.0)  # kWh/kg\n\n    # Load drifts +/-5 % per tick, simulating renewable power fluctuation\n    stack_v = 180.0                                   # 100-cell PEM at 1.8 V/cell\n    prev_i  = float(self.stackCurrent or 0.0)\n    prev_ld = prev_i / max(1.0, nom_pwr * 1000.0 / stack_v)\n    new_ld  = max(min_ld, min(max_ld, prev_ld + (random.random() - 0.5) * 0.1))\n\n    self.stackVoltage        = round(stack_v, 1)\n    self.stackCurrent        = round(new_ld * nom_pwr * 1000.0 / stack_v, 1)\n    self.nominalH2Production = round((new_ld * nom_pwr) / spec_e, 3)  # live rate\n    op_p = float(self.operatingPressure or 1.0)\n    self.operatingPressure   = round(min(30.0, op_p + 0.5), 1)\n",
+                "visibility": "public",
+                "attributeType": "str",
+                "implementationType": "code",
+                "stateMachineId": "",
+                "quantumCircuitId": "",
+                "isOptional": false,
+                "isDerived": false,
+                "isId": false,
+                "isExternalId": false,
+                "isInput": false,
+                "isStep": true
               },
               "class_0113": {
                 "id": "class_0113",
@@ -1088,10 +1062,10 @@
                 "type": "Class",
                 "owner": null,
                 "bounds": {
-                  "x": -237,
-                  "y": -763,
+                  "x": -586,
+                  "y": -761,
                   "width": 240,
-                  "height": 190
+                  "height": 220
                 },
                 "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"128\" height=\"128\" viewBox=\"0 0 64 64\" fill=\"none\" stroke=\"#000000\" stroke-width=\"2\"    stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"32\" cy=\"32\" r=\"20\" fill=\"#2196F3\" fill-opacity=\"0.15\"/><circle cx=\"32\"    cy=\"32\" r=\"4\" fill=\"#000000\" stroke=\"none\"/><path d=\"M32 32L18 20M32 32l14-12M32 32L18 44M32 32l14 12M32 32H14M32 32h18\"/><path    d=\"M6 32h6M52 32h6\"/></svg>",
                 "attributes": [
@@ -1102,7 +1076,9 @@
                   "attr_0118",
                   "attr_0119"
                 ],
-                "methods": []
+                "methods": [
+                  "fb13d55e-726b-4675-92bc-cf4617dbf1e0"
+                ]
               },
               "attr_0114": {
                 "id": "attr_0114",
@@ -1110,8 +1086,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0113",
                 "bounds": {
-                  "x": -236.5,
-                  "y": -722.5,
+                  "x": -585.5,
+                  "y": -720.5,
                   "width": 239,
                   "height": 25
                 },
@@ -1125,7 +1101,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0115": {
                 "id": "attr_0115",
@@ -1133,8 +1110,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0113",
                 "bounds": {
-                  "x": -236.5,
-                  "y": -697.5,
+                  "x": -585.5,
+                  "y": -695.5,
                   "width": 239,
                   "height": 25
                 },
@@ -1148,7 +1125,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0116": {
                 "id": "attr_0116",
@@ -1156,8 +1134,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0113",
                 "bounds": {
-                  "x": -236.5,
-                  "y": -672.5,
+                  "x": -585.5,
+                  "y": -670.5,
                   "width": 239,
                   "height": 25
                 },
@@ -1171,7 +1149,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0117": {
                 "id": "attr_0117",
@@ -1179,8 +1158,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0113",
                 "bounds": {
-                  "x": -236.5,
-                  "y": -647.5,
+                  "x": -585.5,
+                  "y": -645.5,
                   "width": 239,
                   "height": 25
                 },
@@ -1194,7 +1173,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0118": {
                 "id": "attr_0118",
@@ -1202,8 +1182,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0113",
                 "bounds": {
-                  "x": -236.5,
-                  "y": -622.5,
+                  "x": -585.5,
+                  "y": -620.5,
                   "width": 239,
                   "height": 25
                 },
@@ -1217,7 +1197,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0119": {
                 "id": "attr_0119",
@@ -1225,8 +1206,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0113",
                 "bounds": {
-                  "x": -236.5,
-                  "y": -597.5,
+                  "x": -585.5,
+                  "y": -595.5,
                   "width": 239,
                   "height": 25
                 },
@@ -1240,7 +1221,32 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
+              },
+              "fb13d55e-726b-4675-92bc-cf4617dbf1e0": {
+                "id": "fb13d55e-726b-4675-92bc-cf4617dbf1e0",
+                "name": "+ compress()",
+                "type": "ClassMethod",
+                "owner": "class_0113",
+                "bounds": {
+                  "x": -585.5,
+                  "y": -570.5,
+                  "width": 239,
+                  "height": 30
+                },
+                "code": "def compress(self):\n    \"\"\"Compute outlet pressure and shaft power from inlet conditions.\"\"\"\n    import math\n    ratio  = float(self.compressionRatio or 2.5)\n    p_in   = float(self.inletPressure or 30.0)     # bar\n    eff    = float(self.isentropicEfficiency or 0.75)\n    stages = int(self.stages or 1)\n    # Per-stage ratio for multi-stage compression\n    stage_ratio = ratio ** (1.0 / max(1, stages))\n    self.outletPressure = round(p_in * (stage_ratio ** stages), 1)\n    # Simplified isothermal shaft power [kW]\n    self.power = round(p_in * 1e2 * math.log(max(1.0001, ratio)) / max(0.01, eff), 2)\n",
+                "visibility": "public",
+                "attributeType": "str",
+                "implementationType": "code",
+                "stateMachineId": "",
+                "quantumCircuitId": "",
+                "isOptional": false,
+                "isDerived": false,
+                "isId": false,
+                "isExternalId": false,
+                "isInput": false,
+                "isStep": true
               },
               "class_0120": {
                 "id": "class_0120",
@@ -1283,7 +1289,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0122": {
                 "id": "attr_0122",
@@ -1306,7 +1313,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0123": {
                 "id": "attr_0123",
@@ -1329,7 +1337,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0124": {
                 "id": "attr_0124",
@@ -1352,143 +1361,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
-              },
-              "class_0125": {
-                "id": "class_0125",
-                "name": "HeatExchanger",
-                "type": "Class",
-                "owner": null,
-                "bounds": {
-                  "x": -887,
-                  "y": -762,
-                  "width": 240,
-                  "height": 165
-                },
-                "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"128\" height=\"128\" viewBox=\"0 0 64 64\" fill=\"none\" stroke=\"#000000\" stroke-width=\"2\"    stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"10\" y=\"20\" width=\"44\" height=\"24\" rx=\"2\"/><path d=\"M14 26h36M14 32h36M14   38h36\" stroke=\"#2196F3\"/><path d=\"M4 24h6M58 40h6\" stroke=\"#43A047\" stroke-width=\"3\"/><path d=\"M10 16v8M54 40v8\"/></svg>",
-                "attributes": [
-                  "attr_0126",
-                  "attr_0127",
-                  "attr_0128",
-                  "attr_0129",
-                  "attr_0130"
-                ],
-                "methods": []
-              },
-              "attr_0126": {
-                "id": "attr_0126",
-                "name": "heatTransferArea",
-                "type": "ClassAttribute",
-                "owner": "class_0125",
-                "bounds": {
-                  "x": -886.5,
-                  "y": -721.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "float",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": false,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
-              },
-              "attr_0127": {
-                "id": "attr_0127",
-                "name": "heatDuty",
-                "type": "ClassAttribute",
-                "owner": "class_0125",
-                "bounds": {
-                  "x": -886.5,
-                  "y": -696.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "float",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": false,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
-              },
-              "attr_0128": {
-                "id": "attr_0128",
-                "name": "overallU",
-                "type": "ClassAttribute",
-                "owner": "class_0125",
-                "bounds": {
-                  "x": -886.5,
-                  "y": -671.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "float",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": false,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
-              },
-              "attr_0129": {
-                "id": "attr_0129",
-                "name": "hotInletTemp",
-                "type": "ClassAttribute",
-                "owner": "class_0125",
-                "bounds": {
-                  "x": -886.5,
-                  "y": -646.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "float",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": true,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
-              },
-              "attr_0130": {
-                "id": "attr_0130",
-                "name": "coldInletTemp",
-                "type": "ClassAttribute",
-                "owner": "class_0125",
-                "bounds": {
-                  "x": -886.5,
-                  "y": -621.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "float",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": true,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "class_0131": {
                 "id": "class_0131",
@@ -1496,8 +1370,8 @@
                 "type": "AbstractClass",
                 "owner": null,
                 "bounds": {
-                  "x": -567,
-                  "y": -762,
+                  "x": -916,
+                  "y": -760,
                   "width": 240,
                   "height": 100
                 },
@@ -1513,8 +1387,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0131",
                 "bounds": {
-                  "x": -566.5,
-                  "y": -711.5,
+                  "x": -915.5,
+                  "y": -709.5,
                   "width": 239,
                   "height": 25
                 },
@@ -1528,7 +1402,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0133": {
                 "id": "attr_0133",
@@ -1536,8 +1411,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0131",
                 "bounds": {
-                  "x": -566.5,
-                  "y": -686.5,
+                  "x": -915.5,
+                  "y": -684.5,
                   "width": 239,
                   "height": 25
                 },
@@ -1551,7 +1426,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "class_0134": {
                 "id": "class_0134",
@@ -1599,7 +1475,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0136": {
                 "id": "attr_0136",
@@ -1622,7 +1499,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0137": {
                 "id": "attr_0137",
@@ -1645,7 +1523,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0138": {
                 "id": "attr_0138",
@@ -1668,7 +1547,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0139": {
                 "id": "attr_0139",
@@ -1691,7 +1571,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0140": {
                 "id": "attr_0140",
@@ -1714,7 +1595,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "1107d5b7-94a0-4fec-801d-444e7e37925d": {
                 "id": "1107d5b7-94a0-4fec-801d-444e7e37925d",
@@ -1737,7 +1619,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "caedb293-5d28-4cdd-a376-cd6790ed0f81": {
                 "id": "caedb293-5d28-4cdd-a376-cd6790ed0f81",
@@ -1769,8 +1652,8 @@
                 "type": "Class",
                 "owner": null,
                 "bounds": {
-                  "x": 73,
-                  "y": -762,
+                  "x": -276,
+                  "y": -760,
                   "width": 240,
                   "height": 190
                 },
@@ -1792,8 +1675,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0141",
                 "bounds": {
-                  "x": 73.5,
-                  "y": -721.5,
+                  "x": -275.5,
+                  "y": -719.5,
                   "width": 239,
                   "height": 25
                 },
@@ -1807,7 +1690,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0143": {
                 "id": "attr_0143",
@@ -1815,8 +1699,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0141",
                 "bounds": {
-                  "x": 73.5,
-                  "y": -696.5,
+                  "x": -275.5,
+                  "y": -694.5,
                   "width": 239,
                   "height": 25
                 },
@@ -1830,7 +1714,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0144": {
                 "id": "attr_0144",
@@ -1838,8 +1723,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0141",
                 "bounds": {
-                  "x": 73.5,
-                  "y": -671.5,
+                  "x": -275.5,
+                  "y": -669.5,
                   "width": 239,
                   "height": 25
                 },
@@ -1853,7 +1738,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0145": {
                 "id": "attr_0145",
@@ -1861,8 +1747,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0141",
                 "bounds": {
-                  "x": 73.5,
-                  "y": -646.5,
+                  "x": -275.5,
+                  "y": -644.5,
                   "width": 239,
                   "height": 25
                 },
@@ -1876,7 +1762,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "method_0146": {
                 "id": "method_0146",
@@ -1884,8 +1771,8 @@
                 "type": "ClassMethod",
                 "owner": "class_0141",
                 "bounds": {
-                  "x": 73.5,
-                  "y": -621.5,
+                  "x": -275.5,
+                  "y": -619.5,
                   "width": 239,
                   "height": 25
                 },
@@ -1899,7 +1786,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "method_0147": {
                 "id": "method_0147",
@@ -1907,8 +1795,8 @@
                 "type": "ClassMethod",
                 "owner": "class_0141",
                 "bounds": {
-                  "x": 73.5,
-                  "y": -596.5,
+                  "x": -275.5,
+                  "y": -594.5,
                   "width": 239,
                   "height": 25
                 },
@@ -1922,7 +1810,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "class_0148": {
                 "id": "class_0148",
@@ -1930,10 +1819,10 @@
                 "type": "Class",
                 "owner": null,
                 "bounds": {
-                  "x": -2187,
-                  "y": -790,
+                  "x": -2152,
+                  "y": -600,
                   "width": 240,
-                  "height": 115
+                  "height": 145
                 },
                 "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"128\" height=\"128\" viewBox=\"0 0 64 64\" fill=\"none\" stroke=\"#000000\" stroke-width=\"2\"    stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"48\" cy=\"14\" r=\"6\" fill=\"#43A047\"/><path d=\"M48 2v4M48 22v2M58 14h-2M40   14h-2M55.1 7l-1.5 1.5M42.5 19.5L41 21M55.1 21l-1.5-1.5M42.5 8.5L41 7\"/><path d=\"M10 32h44l-6 22H16z\" fill=\"#2196F3\"    fill-opacity=\"0.2\"/><path d=\"M22 32l-2 22M34 32v22M46 32l2 22M14 40h36M16 48h32\"/></svg>",
                 "attributes": [
@@ -1941,7 +1830,9 @@
                   "attr_0150",
                   "attr_0151"
                 ],
-                "methods": []
+                "methods": [
+                  "57436450-1f7e-4914-8b47-0189cb50ff5c"
+                ]
               },
               "attr_0149": {
                 "id": "attr_0149",
@@ -1949,8 +1840,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0148",
                 "bounds": {
-                  "x": -2186.5,
-                  "y": -749.5,
+                  "x": -2151.5,
+                  "y": -559.5,
                   "width": 239,
                   "height": 25
                 },
@@ -1964,7 +1855,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0150": {
                 "id": "attr_0150",
@@ -1972,8 +1864,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0148",
                 "bounds": {
-                  "x": -2186.5,
-                  "y": -724.5,
+                  "x": -2151.5,
+                  "y": -534.5,
                   "width": 239,
                   "height": 25
                 },
@@ -1987,7 +1879,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0151": {
                 "id": "attr_0151",
@@ -1995,8 +1888,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0148",
                 "bounds": {
-                  "x": -2186.5,
-                  "y": -699.5,
+                  "x": -2151.5,
+                  "y": -509.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2010,7 +1903,32 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
+              },
+              "57436450-1f7e-4914-8b47-0189cb50ff5c": {
+                "id": "57436450-1f7e-4914-8b47-0189cb50ff5c",
+                "name": "+ compute_output()",
+                "type": "ClassMethod",
+                "owner": "class_0148",
+                "bounds": {
+                  "x": -2151.5,
+                  "y": -484.5,
+                  "width": 239,
+                  "height": 30
+                },
+                "code": "def compute_output(self):\n    \"\"\"Sinusoidal daily power profile (hour 0–23, peak at 12).\n    _sim_hour advances by 1 each tick (set it to 6 to start at dawn).\n    Updates ratedPower [kW].\n    \"\"\"\n    import math\n    hour = float(getattr(self, '_sim_hour', 0)) % 24\n    self._sim_hour = (hour + 1) % 24\n    factor = max(0.0, math.sin(math.pi * hour / 12.0))\n    self.ratedPower = round(float(self.peakPower or 0.0) * factor, 2)\n",
+                "visibility": "public",
+                "attributeType": "str",
+                "implementationType": "code",
+                "stateMachineId": "",
+                "quantumCircuitId": "",
+                "isOptional": false,
+                "isDerived": false,
+                "isId": false,
+                "isExternalId": false,
+                "isInput": false,
+                "isStep": true
               },
               "class_0152": {
                 "id": "class_0152",
@@ -2018,18 +1936,21 @@
                 "type": "Class",
                 "owner": null,
                 "bounds": {
-                  "x": -2715,
-                  "y": -788,
+                  "x": -2680,
+                  "y": -598,
                   "width": 240,
-                  "height": 115
+                  "height": 170
                 },
                 "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"128\" height=\"128\" viewBox=\"0 0 64 64\" fill=\"none\" stroke=\"#000000\" stroke-width=\"2\"    stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M30 30l-2 28h8l-2-28z\" fill=\"#000000\" fill-opacity=\"0.05\"/><circle cx=\"32\"    cy=\"28\" r=\"3\" fill=\"#000000\" stroke=\"none\"/><path d=\"M32 28V6\" stroke=\"#43A047\" stroke-width=\"4\"/><path d=\"M32 28L12 40\"    stroke=\"#43A047\" stroke-width=\"4\"/><path d=\"M32 28l20 12\" stroke=\"#43A047\" stroke-width=\"4\"/></svg>",
                 "attributes": [
                   "attr_0153",
                   "attr_0154",
-                  "attr_0155"
+                  "attr_0155",
+                  "61171d5a-d8a7-45c9-b375-61e668bc8291"
                 ],
-                "methods": []
+                "methods": [
+                  "07218359-fdb7-47f6-90d9-58d894bfb67f"
+                ]
               },
               "attr_0153": {
                 "id": "attr_0153",
@@ -2037,8 +1958,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0152",
                 "bounds": {
-                  "x": -2714.5,
-                  "y": -747.5,
+                  "x": -2679.5,
+                  "y": -557.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2052,7 +1973,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0154": {
                 "id": "attr_0154",
@@ -2060,8 +1982,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0152",
                 "bounds": {
-                  "x": -2714.5,
-                  "y": -722.5,
+                  "x": -2679.5,
+                  "y": -532.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2075,7 +1997,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0155": {
                 "id": "attr_0155",
@@ -2083,8 +2006,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0152",
                 "bounds": {
-                  "x": -2714.5,
-                  "y": -697.5,
+                  "x": -2679.5,
+                  "y": -507.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2098,7 +2021,56 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
+              },
+              "61171d5a-d8a7-45c9-b375-61e668bc8291": {
+                "id": "61171d5a-d8a7-45c9-b375-61e668bc8291",
+                "name": "currentPower",
+                "type": "ClassAttribute",
+                "owner": "class_0152",
+                "bounds": {
+                  "x": -2679.5,
+                  "y": -482.5,
+                  "width": 239,
+                  "height": 25
+                },
+                "code": "",
+                "visibility": "public",
+                "attributeType": "float",
+                "implementationType": "none",
+                "stateMachineId": "",
+                "quantumCircuitId": "",
+                "isOptional": false,
+                "isDerived": false,
+                "isId": false,
+                "isExternalId": false,
+                "isInput": false,
+                "isStep": false
+              },
+              "07218359-fdb7-47f6-90d9-58d894bfb67f": {
+                "id": "07218359-fdb7-47f6-90d9-58d894bfb67f",
+                "name": "+ compute_output()",
+                "type": "ClassMethod",
+                "owner": "class_0152",
+                "bounds": {
+                  "x": -2679.5,
+                  "y": -457.5,
+                  "width": 239,
+                  "height": 30
+                },
+                "code": "def compute_output(self):\n    \"\"\"Stochastic wind power output (±20 % around rated capacity).\n    Updates currentPower with instantaneous generation in kW.\n    \"\"\"\n    import random\n    turbines = int(self.turbineCount or 3)\n    rated_speed = float(self.ratedWindSpeed or 12.0)\n    # Simulate variable wind speed around rated speed\n    wind_speed = rated_speed * (0.6 + random.random() * 0.8)\n    rated_kw = turbines * 333.0  # ~1 MW total for 3 × 333 kW turbines\n    if wind_speed < 3.0:\n        self.currentPower = 0.0\n    elif wind_speed >= rated_speed:\n        self.currentPower = round(rated_kw, 2)\n    else:\n        factor = (wind_speed / rated_speed) ** 3\n        self.currentPower = round(rated_kw * factor, 2)\n",
+                "visibility": "public",
+                "attributeType": "str",
+                "implementationType": "code",
+                "stateMachineId": "",
+                "quantumCircuitId": "",
+                "isOptional": false,
+                "isDerived": false,
+                "isId": false,
+                "isExternalId": false,
+                "isInput": false,
+                "isStep": true
               },
               "class_0156": {
                 "id": "class_0156",
@@ -2106,8 +2078,8 @@
                 "type": "Class",
                 "owner": null,
                 "bounds": {
-                  "x": -2448,
-                  "y": -787,
+                  "x": -2413,
+                  "y": -597,
                   "width": 240,
                   "height": 115
                 },
@@ -2125,8 +2097,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0156",
                 "bounds": {
-                  "x": -2447.5,
-                  "y": -746.5,
+                  "x": -2412.5,
+                  "y": -556.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2140,7 +2112,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0158": {
                 "id": "attr_0158",
@@ -2148,8 +2121,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0156",
                 "bounds": {
-                  "x": -2447.5,
-                  "y": -721.5,
+                  "x": -2412.5,
+                  "y": -531.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2163,7 +2136,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0159": {
                 "id": "attr_0159",
@@ -2171,8 +2145,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0156",
                 "bounds": {
-                  "x": -2447.5,
-                  "y": -696.5,
+                  "x": -2412.5,
+                  "y": -506.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2186,7 +2160,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "class_0160": {
                 "id": "class_0160",
@@ -2194,8 +2169,8 @@
                 "type": "Class",
                 "owner": null,
                 "bounds": {
-                  "x": -1575,
-                  "y": -323,
+                  "x": -1577,
+                  "y": -379,
                   "width": 240,
                   "height": 90
                 },
@@ -2212,8 +2187,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0160",
                 "bounds": {
-                  "x": -1574.5,
-                  "y": -282.5,
+                  "x": -1576.5,
+                  "y": -338.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2227,7 +2202,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0162": {
                 "id": "attr_0162",
@@ -2235,8 +2211,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0160",
                 "bounds": {
-                  "x": -1574.5,
-                  "y": -257.5,
+                  "x": -1576.5,
+                  "y": -313.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2250,7 +2226,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "class_0163": {
                 "id": "class_0163",
@@ -2258,8 +2235,8 @@
                 "type": "Class",
                 "owner": null,
                 "bounds": {
-                  "x": -1845,
-                  "y": -324,
+                  "x": -1847,
+                  "y": -380,
                   "width": 240,
                   "height": 90
                 },
@@ -2276,8 +2253,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0163",
                 "bounds": {
-                  "x": -1844.5,
-                  "y": -283.5,
+                  "x": -1846.5,
+                  "y": -339.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2291,7 +2268,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0165": {
                 "id": "attr_0165",
@@ -2299,8 +2277,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0163",
                 "bounds": {
-                  "x": -1844.5,
-                  "y": -258.5,
+                  "x": -1846.5,
+                  "y": -314.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2314,7 +2292,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "class_0166": {
                 "id": "class_0166",
@@ -2322,8 +2301,8 @@
                 "type": "Class",
                 "owner": null,
                 "bounds": {
-                  "x": -2126,
-                  "y": -318,
+                  "x": -2128,
+                  "y": -374,
                   "width": 240,
                   "height": 90
                 },
@@ -2340,8 +2319,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0166",
                 "bounds": {
-                  "x": -2125.5,
-                  "y": -277.5,
+                  "x": -2127.5,
+                  "y": -333.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2355,7 +2334,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0168": {
                 "id": "attr_0168",
@@ -2363,8 +2343,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0166",
                 "bounds": {
-                  "x": -2125.5,
-                  "y": -252.5,
+                  "x": -2127.5,
+                  "y": -308.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2378,7 +2358,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "class_0169": {
                 "id": "class_0169",
@@ -2386,18 +2367,21 @@
                 "type": "Class",
                 "owner": null,
                 "bounds": {
-                  "x": -727,
-                  "y": -360,
+                  "x": -1030,
+                  "y": -538,
                   "width": 240,
-                  "height": 140
+                  "height": 170
                 },
+                "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"128\" height=\"128\" viewBox=\"0 0 64 64\" fill=\"none\"      stroke=\"#000000\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">    <!-- main vessel -->   <rect x=\"18\" y=\"10\" width=\"28\" height=\"44\" rx=\"3\"         fill=\"#E3F2FD\" fill-opacity=\"0.25\"/>    <!-- adsorption bed layers -->   <line x1=\"20\" y1=\"18\" x2=\"44\" y2=\"18\" stroke=\"#43A047\"/>   <line x1=\"20\" y1=\"26\" x2=\"44\" y2=\"26\" stroke=\"#43A047\"/>   <line x1=\"20\" y1=\"34\" x2=\"44\" y2=\"34\" stroke=\"#43A047\"/>   <line x1=\"20\" y1=\"42\" x2=\"44\" y2=\"42\" stroke=\"#43A047\"/>    <!-- inlet pipe -->   <path d=\"M10 24h8v6\" />   <circle cx=\"10\" cy=\"24\" r=\"2\" fill=\"#90CAF9\"/>    <!-- outlet pipe -->   <path d=\"M46 40h8v-6\" />   <circle cx=\"54\" cy=\"40\" r=\"2\" fill=\"#64B5F6\"/>    <!-- valve / control unit -->   <rect x=\"26\" y=\"4\" width=\"12\" height=\"6\" rx=\"1\" fill=\"#90CAF9\" fill-opacity=\"0.4\"/>   <path d=\"M26 7h12\"/>    <!-- base -->   <path d=\"M14 54h36\"/>  </svg>",
                 "attributes": [
                   "attr_0170",
                   "attr_0171",
                   "attr_0172",
                   "attr_0173"
                 ],
-                "methods": []
+                "methods": [
+                  "85912371-df29-4282-9309-e62b4f2e0985"
+                ]
               },
               "attr_0170": {
                 "id": "attr_0170",
@@ -2405,8 +2389,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0169",
                 "bounds": {
-                  "x": -726.5,
-                  "y": -319.5,
+                  "x": -1029.5,
+                  "y": -497.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2420,7 +2404,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0171": {
                 "id": "attr_0171",
@@ -2428,8 +2413,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0169",
                 "bounds": {
-                  "x": -726.5,
-                  "y": -294.5,
+                  "x": -1029.5,
+                  "y": -472.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2443,7 +2428,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0172": {
                 "id": "attr_0172",
@@ -2451,8 +2437,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0169",
                 "bounds": {
-                  "x": -726.5,
-                  "y": -269.5,
+                  "x": -1029.5,
+                  "y": -447.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2466,7 +2452,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0173": {
                 "id": "attr_0173",
@@ -2474,8 +2461,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0169",
                 "bounds": {
-                  "x": -726.5,
-                  "y": -244.5,
+                  "x": -1029.5,
+                  "y": -422.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2489,7 +2476,32 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
+              },
+              "85912371-df29-4282-9309-e62b4f2e0985": {
+                "id": "85912371-df29-4282-9309-e62b4f2e0985",
+                "name": "+ purify()",
+                "type": "ClassMethod",
+                "owner": "class_0169",
+                "bounds": {
+                  "x": -1029.5,
+                  "y": -397.5,
+                  "width": 239,
+                  "height": 30
+                },
+                "code": "def purify(self):\n    \"\"\"Cycle PSA adsorption / regeneration phases.\n    workingPressure oscillates to model the high-pressure adsorption\n    and low-pressure purge strokes of the PSA bed.\n    \"\"\"\n    wp         = float(self.workingPressure or 5.0)\n    cycle_time = float(self.cycleTime or 60.0)   # s per half-cycle\n    elapsed    = float(getattr(self, '_phase_t', 0.0))\n    adsorbing  = (elapsed % (cycle_time * 2)) < cycle_time\n    self.workingPressure = round(min(8.0, wp + 0.4) if adsorbing\n                                 else max(1.0, wp - 0.4), 2)\n    self._phase_t = elapsed + 1.0\n",
+                "visibility": "public",
+                "attributeType": "str",
+                "implementationType": "code",
+                "stateMachineId": "",
+                "quantumCircuitId": "",
+                "isOptional": false,
+                "isDerived": false,
+                "isId": false,
+                "isExternalId": false,
+                "isInput": false,
+                "isStep": true
               },
               "class_0174": {
                 "id": "class_0174",
@@ -2497,17 +2509,19 @@
                 "type": "Class",
                 "owner": null,
                 "bounds": {
-                  "x": -413,
-                  "y": -360,
+                  "x": -745,
+                  "y": -526,
                   "width": 240,
-                  "height": 90
+                  "height": 120
                 },
                 "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"128\" height=\"128\" viewBox=\"0 0 64 64\" fill=\"none\" stroke=\"#000000\" stroke-width=\"2\"    stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"10\" y=\"20\" width=\"44\" height=\"24\" rx=\"12\" fill=\"#43A047\"    fill-opacity=\"0.18\"/><path d=\"M16 20v-6M48 20v-6\"/><path d=\"M22 32c0-3 2-3 2-6c0 3-2 3-2 6M32 32c0-3 2-3 2-6c0 3-2 3-2 6M42 32c0-3   2-3 2-6c0 3-2 3-2 6\"/><path d=\"M22 50l-2 6h4z\" fill=\"#2196F3\"/><path d=\"M32 50l-2 6h4z\" fill=\"#2196F3\"/><path d=\"M42 50l-2 6h4z\"    fill=\"#2196F3\"/></svg>",
                 "attributes": [
                   "attr_0175",
                   "attr_0176"
                 ],
-                "methods": []
+                "methods": [
+                  "95982b36-d776-4d7d-9c2c-21570508bfe2"
+                ]
               },
               "attr_0175": {
                 "id": "attr_0175",
@@ -2515,8 +2529,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0174",
                 "bounds": {
-                  "x": -412.5,
-                  "y": -319.5,
+                  "x": -744.5,
+                  "y": -485.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2530,7 +2544,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0176": {
                 "id": "attr_0176",
@@ -2538,8 +2553,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0174",
                 "bounds": {
-                  "x": -412.5,
-                  "y": -294.5,
+                  "x": -744.5,
+                  "y": -460.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2553,7 +2568,32 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
+              },
+              "95982b36-d776-4d7d-9c2c-21570508bfe2": {
+                "id": "95982b36-d776-4d7d-9c2c-21570508bfe2",
+                "name": "+ dry()",
+                "type": "ClassMethod",
+                "owner": "class_0174",
+                "bounds": {
+                  "x": -744.5,
+                  "y": -435.5,
+                  "width": 239,
+                  "height": 30
+                },
+                "code": "def dry(self):\n    \"\"\"Drive dew point toward the -60 C setpoint as the dryer warms up.\n    First-order approach: closes 5 % of the remaining gap each tick.\n    \"\"\"\n    dew    = float(self.dewPoint or -20.0)\n    target = -60.0                        # typical dried H2 dew point [C]\n    self.dewPoint = round(dew + (target - dew) * 0.05, 1)\n",
+                "visibility": "public",
+                "attributeType": "str",
+                "implementationType": "code",
+                "stateMachineId": "",
+                "quantumCircuitId": "",
+                "isOptional": false,
+                "isDerived": false,
+                "isId": false,
+                "isExternalId": false,
+                "isInput": false,
+                "isStep": true
               },
               "class_0177": {
                 "id": "class_0177",
@@ -2561,8 +2601,8 @@
                 "type": "Enumeration",
                 "owner": null,
                 "bounds": {
-                  "x": 326,
-                  "y": -1216,
+                  "x": -718,
+                  "y": -1104,
                   "width": 240,
                   "height": 175
                 },
@@ -2581,8 +2621,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0177",
                 "bounds": {
-                  "x": 326.5,
-                  "y": -1165.5,
+                  "x": -717.5,
+                  "y": -1053.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2596,7 +2636,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0179": {
                 "id": "attr_0179",
@@ -2604,8 +2645,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0177",
                 "bounds": {
-                  "x": 326.5,
-                  "y": -1140.5,
+                  "x": -717.5,
+                  "y": -1028.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2619,7 +2660,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0180": {
                 "id": "attr_0180",
@@ -2627,8 +2669,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0177",
                 "bounds": {
-                  "x": 326.5,
-                  "y": -1115.5,
+                  "x": -717.5,
+                  "y": -1003.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2642,7 +2684,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0181": {
                 "id": "attr_0181",
@@ -2650,8 +2693,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0177",
                 "bounds": {
-                  "x": 326.5,
-                  "y": -1090.5,
+                  "x": -717.5,
+                  "y": -978.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2665,7 +2708,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0182": {
                 "id": "attr_0182",
@@ -2673,8 +2717,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0177",
                 "bounds": {
-                  "x": 326.5,
-                  "y": -1065.5,
+                  "x": -717.5,
+                  "y": -953.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2688,7 +2732,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "class_0183": {
                 "id": "class_0183",
@@ -2696,8 +2741,8 @@
                 "type": "Enumeration",
                 "owner": null,
                 "bounds": {
-                  "x": 321,
-                  "y": -994,
+                  "x": -422,
+                  "y": -1102,
                   "width": 240,
                   "height": 175
                 },
@@ -2716,8 +2761,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0183",
                 "bounds": {
-                  "x": 321.5,
-                  "y": -943.5,
+                  "x": -421.5,
+                  "y": -1051.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2731,7 +2776,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0185": {
                 "id": "attr_0185",
@@ -2739,8 +2785,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0183",
                 "bounds": {
-                  "x": 321.5,
-                  "y": -918.5,
+                  "x": -421.5,
+                  "y": -1026.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2754,7 +2800,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0186": {
                 "id": "attr_0186",
@@ -2762,8 +2809,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0183",
                 "bounds": {
-                  "x": 321.5,
-                  "y": -893.5,
+                  "x": -421.5,
+                  "y": -1001.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2777,7 +2824,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0187": {
                 "id": "attr_0187",
@@ -2785,8 +2833,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0183",
                 "bounds": {
-                  "x": 321.5,
-                  "y": -868.5,
+                  "x": -421.5,
+                  "y": -976.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2800,7 +2848,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0188": {
                 "id": "attr_0188",
@@ -2808,8 +2857,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0183",
                 "bounds": {
-                  "x": 321.5,
-                  "y": -843.5,
+                  "x": -421.5,
+                  "y": -951.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2823,7 +2872,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "class_0189": {
                 "id": "class_0189",
@@ -2831,8 +2881,8 @@
                 "type": "Enumeration",
                 "owner": null,
                 "bounds": {
-                  "x": 354,
-                  "y": -758,
+                  "x": -143,
+                  "y": -1100,
                   "width": 240,
                   "height": 100
                 },
@@ -2848,8 +2898,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0189",
                 "bounds": {
-                  "x": 354.5,
-                  "y": -707.5,
+                  "x": -142.5,
+                  "y": -1049.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2863,7 +2913,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
               "attr_0191": {
                 "id": "attr_0191",
@@ -2871,8 +2922,8 @@
                 "type": "ClassAttribute",
                 "owner": "class_0189",
                 "bounds": {
-                  "x": 354.5,
-                  "y": -682.5,
+                  "x": -142.5,
+                  "y": -1024.5,
                   "width": 239,
                   "height": 25
                 },
@@ -2886,41 +2937,269 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               },
-              "class_0192": {
-                "id": "class_0192",
-                "name": "MeasurementType",
-                "type": "Enumeration",
+              "db71ef3d-88b6-456f-bacd-88a783a5440b": {
+                "id": "db71ef3d-88b6-456f-bacd-88a783a5440b",
+                "name": "Truck",
+                "type": "Class",
                 "owner": null,
                 "bounds": {
-                  "x": 341,
-                  "y": -1718,
+                  "x": -2669,
+                  "y": -874,
+                  "width": 190,
+                  "height": 120
+                },
+                "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"128\" height=\"128\" viewBox=\"0 0 64 64\" fill=\"none\" stroke=\"#000000\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">    <!-- truck body -->   <rect x=\"6\" y=\"26\" width=\"34\" height=\"16\" rx=\"2\" fill=\"#90CAF9\" fill-opacity=\"0.2\"/>    <!-- cabin -->   <rect x=\"40\" y=\"30\" width=\"12\" height=\"12\" rx=\"2\" fill=\"#64B5F6\" fill-opacity=\"0.2\"/>    <!-- window -->   <rect x=\"42\" y=\"32\" width=\"6\" height=\"4\" fill=\"#BBDEFB\" stroke=\"none\"/>    <!-- wheels -->   <circle cx=\"18\" cy=\"44\" r=\"4\" fill=\"#000000\"/>   <circle cx=\"44\" cy=\"44\" r=\"4\" fill=\"#000000\"/>    <!-- ground line -->   <path d=\"M4 48h56\"/>    <!-- simple cargo hint -->   <path d=\"M12 26v16M22 26v16\" stroke=\"#43A047\"/>  </svg>",
+                "attributes": [
+                  "401154f9-4332-45d4-9138-75b3b37c9142",
+                  "44882bd1-fb21-4885-8f70-0618c0f36013"
+                ],
+                "methods": [
+                  "099b6b68-e2ab-4eba-9bd6-936a4b9acb1d"
+                ]
+              },
+              "401154f9-4332-45d4-9138-75b3b37c9142": {
+                "id": "401154f9-4332-45d4-9138-75b3b37c9142",
+                "name": "capacity",
+                "type": "ClassAttribute",
+                "owner": "db71ef3d-88b6-456f-bacd-88a783a5440b",
+                "bounds": {
+                  "x": -2668.5,
+                  "y": -833.5,
+                  "width": 189,
+                  "height": 25
+                },
+                "code": "",
+                "visibility": "public",
+                "attributeType": "float",
+                "implementationType": "none",
+                "stateMachineId": "",
+                "quantumCircuitId": "",
+                "isOptional": false,
+                "isDerived": false,
+                "isId": false,
+                "isExternalId": false,
+                "isInput": false,
+                "isStep": false
+              },
+              "44882bd1-fb21-4885-8f70-0618c0f36013": {
+                "id": "44882bd1-fb21-4885-8f70-0618c0f36013",
+                "name": "currentLoad",
+                "type": "ClassAttribute",
+                "owner": "db71ef3d-88b6-456f-bacd-88a783a5440b",
+                "bounds": {
+                  "x": -2668.5,
+                  "y": -808.5,
+                  "width": 189,
+                  "height": 25
+                },
+                "code": "",
+                "visibility": "public",
+                "attributeType": "float",
+                "implementationType": "none",
+                "stateMachineId": "",
+                "quantumCircuitId": "",
+                "isOptional": false,
+                "isDerived": false,
+                "isId": false,
+                "isExternalId": false,
+                "isInput": false,
+                "isStep": false
+              },
+              "099b6b68-e2ab-4eba-9bd6-936a4b9acb1d": {
+                "id": "099b6b68-e2ab-4eba-9bd6-936a4b9acb1d",
+                "name": "+ deliver()",
+                "type": "ClassMethod",
+                "owner": "db71ef3d-88b6-456f-bacd-88a783a5440b",
+                "bounds": {
+                  "x": -2668.5,
+                  "y": -783.5,
+                  "width": 189,
+                  "height": 30
+                },
+                "code": "def deliver(self):\n    \"\"\"Simple loading / delivery cycle visible in the property inspector.\n\n    currentLoad rises by 10 % of capacity per tick while loading.\n    Once full (>= 95 %) the truck departs: currentLoad drops by 25 % per tick\n    until empty, then the loading cycle restarts.\n    \"\"\"\n    cap  = float(self.capacity or 500.0)\n    load = float(self.currentLoad or 0.0)\n    if load < cap * 0.95:\n        self.currentLoad = round(min(cap, load + cap * 0.10), 2)\n    else:\n        self.currentLoad = round(max(0.0, load - cap * 0.25), 2)\n",
+                "visibility": "public",
+                "attributeType": "str",
+                "implementationType": "code",
+                "stateMachineId": "",
+                "quantumCircuitId": "",
+                "isOptional": false,
+                "isDerived": false,
+                "isId": false,
+                "isExternalId": false,
+                "isInput": false,
+                "isStep": true
+              },
+              "5cd8da45-9509-4956-b2d2-2bd1fc998070": {
+                "id": "5cd8da45-9509-4956-b2d2-2bd1fc998070",
+                "name": "H2DeliveryPoint",
+                "type": "Class",
+                "owner": null,
+                "bounds": {
+                  "x": -2441,
+                  "y": -873,
                   "width": 240,
-                  "height": 250
+                  "height": 170
+                },
+                "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"128\" height=\"128\" viewBox=\"0 0 64 64\" fill=\"none\" stroke=\"#000000\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">    <!-- base station -->   <rect x=\"14\" y=\"18\" width=\"36\" height=\"30\" rx=\"3\" fill=\"#E3F2FD\" fill-opacity=\"0.3\"/>    <!-- H2 label -->   <text x=\"22\" y=\"34\" font-size=\"10\" fill=\"#1E88E5\" font-family=\"Arial\">H2</text>    <!-- pump nozzle -->   <path d=\"M40 24v10c0 2 2 4 4 4h2\"/>    <!-- hose -->   <path d=\"M42 34c6 0 6 10-2 10h-4\"/>    <!-- ground connector / delivery port -->   <circle cx=\"34\" cy=\"46\" r=\"2\" fill=\"#43A047\"/>    <!-- indicator lights -->   <circle cx=\"18\" cy=\"22\" r=\"1.5\" fill=\"#43A047\"/>   <circle cx=\"22\" cy=\"22\" r=\"1.5\" fill=\"#2196F3\"/>    <!-- base line -->   <path d=\"M10 50h44\"/>  </svg>",
+                "attributes": [
+                  "b710b293-7b65-4642-ad83-41b5f190d0f7",
+                  "037b2237-cb1b-42c1-81e1-d2d5c0147288",
+                  "b2362c36-44bf-4115-9cc4-3a249e4b936e",
+                  "4be8dcd6-b50a-4ca2-9c9a-60a903188009"
+                ],
+                "methods": [
+                  "26e590fd-07e8-4713-8f77-96ce8b2e74e8"
+                ]
+              },
+              "b710b293-7b65-4642-ad83-41b5f190d0f7": {
+                "id": "b710b293-7b65-4642-ad83-41b5f190d0f7",
+                "name": "tankCapacity",
+                "type": "ClassAttribute",
+                "owner": "5cd8da45-9509-4956-b2d2-2bd1fc998070",
+                "bounds": {
+                  "x": -2440.5,
+                  "y": -832.5,
+                  "width": 239,
+                  "height": 25
+                },
+                "code": "",
+                "visibility": "public",
+                "attributeType": "float",
+                "implementationType": "none",
+                "stateMachineId": "",
+                "quantumCircuitId": "",
+                "isOptional": false,
+                "isDerived": false,
+                "isId": false,
+                "isExternalId": false,
+                "isInput": false,
+                "isStep": false
+              },
+              "037b2237-cb1b-42c1-81e1-d2d5c0147288": {
+                "id": "037b2237-cb1b-42c1-81e1-d2d5c0147288",
+                "name": "currentLevel",
+                "type": "ClassAttribute",
+                "owner": "5cd8da45-9509-4956-b2d2-2bd1fc998070",
+                "bounds": {
+                  "x": -2440.5,
+                  "y": -807.5,
+                  "width": 239,
+                  "height": 25
+                },
+                "code": "",
+                "visibility": "public",
+                "attributeType": "float",
+                "implementationType": "none",
+                "stateMachineId": "",
+                "quantumCircuitId": "",
+                "isOptional": false,
+                "isDerived": false,
+                "isId": false,
+                "isExternalId": false,
+                "isInput": false,
+                "isStep": false
+              },
+              "b2362c36-44bf-4115-9cc4-3a249e4b936e": {
+                "id": "b2362c36-44bf-4115-9cc4-3a249e4b936e",
+                "name": "dispensingPressure",
+                "type": "ClassAttribute",
+                "owner": "5cd8da45-9509-4956-b2d2-2bd1fc998070",
+                "bounds": {
+                  "x": -2440.5,
+                  "y": -782.5,
+                  "width": 239,
+                  "height": 25
+                },
+                "code": "",
+                "visibility": "public",
+                "attributeType": "float",
+                "implementationType": "none",
+                "stateMachineId": "",
+                "quantumCircuitId": "",
+                "isOptional": false,
+                "isDerived": false,
+                "isId": false,
+                "isExternalId": false,
+                "isInput": false,
+                "isStep": false
+              },
+              "4be8dcd6-b50a-4ca2-9c9a-60a903188009": {
+                "id": "4be8dcd6-b50a-4ca2-9c9a-60a903188009",
+                "name": "dispensingRate",
+                "type": "ClassAttribute",
+                "owner": "5cd8da45-9509-4956-b2d2-2bd1fc998070",
+                "bounds": {
+                  "x": -2440.5,
+                  "y": -757.5,
+                  "width": 239,
+                  "height": 25
+                },
+                "code": "",
+                "visibility": "public",
+                "attributeType": "float",
+                "implementationType": "none",
+                "stateMachineId": "",
+                "quantumCircuitId": "",
+                "isOptional": false,
+                "isDerived": false,
+                "isId": false,
+                "isExternalId": false,
+                "isInput": false,
+                "isStep": false
+              },
+              "26e590fd-07e8-4713-8f77-96ce8b2e74e8": {
+                "id": "26e590fd-07e8-4713-8f77-96ce8b2e74e8",
+                "name": "+ dispense_h2()",
+                "type": "ClassMethod",
+                "owner": "5cd8da45-9509-4956-b2d2-2bd1fc998070",
+                "bounds": {
+                  "x": -2440.5,
+                  "y": -732.5,
+                  "width": 239,
+                  "height": 30
+                },
+                "code": "def dispense_h2(self):\n    \"\"\"Dispense H2 to refuelling buses at dispensingRate [kg/tick].\n    When the tank runs dry it auto-refills to 80 % capacity, simulating\n    a delivery from the storage tank.\n    \"\"\"\n    rate    = float(self.dispensingRate or 5.0)\n    current = float(self.currentLevel or 0.0)\n    cap     = float(self.tankCapacity or 200.0)\n    if current > 0:\n        self.currentLevel = round(max(0.0, current - rate), 2)\n    else:\n        self.currentLevel = round(cap * 0.8, 2)   # refill from storage\n",
+                "visibility": "public",
+                "attributeType": "str",
+                "implementationType": "code",
+                "stateMachineId": "",
+                "quantumCircuitId": "",
+                "isOptional": false,
+                "isDerived": false,
+                "isId": false,
+                "isExternalId": false,
+                "isInput": false,
+                "isStep": true
+              },
+              "bb8de9c1-0df4-4a58-b24d-c9b8b6ea9c73": {
+                "id": "bb8de9c1-0df4-4a58-b24d-c9b8b6ea9c73",
+                "name": "TransportUnit",
+                "type": "AbstractClass",
+                "owner": null,
+                "bounds": {
+                  "x": -2431,
+                  "y": -1125,
+                  "width": 160,
+                  "height": 80
                 },
                 "attributes": [
-                  "attr_0193",
-                  "attr_0194",
-                  "attr_0195",
-                  "attr_0196",
-                  "attr_0197",
-                  "attr_0198",
-                  "attr_0199",
-                  "attr_0200"
+                  "3ca7b4e2-6266-4cdc-a856-b306e89d13b9"
                 ],
                 "methods": []
               },
-              "attr_0193": {
-                "id": "attr_0193",
-                "name": "Temperature",
+              "3ca7b4e2-6266-4cdc-a856-b306e89d13b9": {
+                "id": "3ca7b4e2-6266-4cdc-a856-b306e89d13b9",
+                "name": "attribute",
                 "type": "ClassAttribute",
-                "owner": "class_0192",
+                "owner": "bb8de9c1-0df4-4a58-b24d-c9b8b6ea9c73",
                 "bounds": {
-                  "x": 341.5,
-                  "y": -1667.5,
-                  "width": 239,
-                  "height": 25
+                  "x": -2430.5,
+                  "y": -1074.5,
+                  "width": 159,
+                  "height": 30
                 },
                 "code": "",
                 "visibility": "public",
@@ -2932,414 +3211,8 @@
                 "isDerived": false,
                 "isId": false,
                 "isExternalId": false,
-                "isInput": false
-              },
-              "attr_0194": {
-                "id": "attr_0194",
-                "name": "Pressure",
-                "type": "ClassAttribute",
-                "owner": "class_0192",
-                "bounds": {
-                  "x": 341.5,
-                  "y": -1642.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "str",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": false,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
-              },
-              "attr_0195": {
-                "id": "attr_0195",
-                "name": "Flow",
-                "type": "ClassAttribute",
-                "owner": "class_0192",
-                "bounds": {
-                  "x": 341.5,
-                  "y": -1617.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "str",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": false,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
-              },
-              "attr_0196": {
-                "id": "attr_0196",
-                "name": "Level",
-                "type": "ClassAttribute",
-                "owner": "class_0192",
-                "bounds": {
-                  "x": 341.5,
-                  "y": -1592.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "str",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": false,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
-              },
-              "attr_0197": {
-                "id": "attr_0197",
-                "name": "Concentration",
-                "type": "ClassAttribute",
-                "owner": "class_0192",
-                "bounds": {
-                  "x": 341.5,
-                  "y": -1567.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "str",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": false,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
-              },
-              "attr_0198": {
-                "id": "attr_0198",
-                "name": "Voltage",
-                "type": "ClassAttribute",
-                "owner": "class_0192",
-                "bounds": {
-                  "x": 341.5,
-                  "y": -1542.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "str",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": false,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
-              },
-              "attr_0199": {
-                "id": "attr_0199",
-                "name": "Current",
-                "type": "ClassAttribute",
-                "owner": "class_0192",
-                "bounds": {
-                  "x": 341.5,
-                  "y": -1517.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "str",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": false,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
-              },
-              "attr_0200": {
-                "id": "attr_0200",
-                "name": "Power",
-                "type": "ClassAttribute",
-                "owner": "class_0192",
-                "bounds": {
-                  "x": 341.5,
-                  "y": -1492.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "str",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": false,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
-              },
-              "class_0201": {
-                "id": "class_0201",
-                "name": "AlarmSeverity",
-                "type": "Enumeration",
-                "owner": null,
-                "bounds": {
-                  "x": 320,
-                  "y": 800,
-                  "width": 240,
-                  "height": 150
-                },
-                "attributes": [
-                  "attr_0202",
-                  "attr_0203",
-                  "attr_0204",
-                  "attr_0205"
-                ],
-                "methods": []
-              },
-              "attr_0202": {
-                "id": "attr_0202",
-                "name": "Info",
-                "type": "ClassAttribute",
-                "owner": "class_0201",
-                "bounds": {
-                  "x": 320.5,
-                  "y": 850.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "str",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": false,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
-              },
-              "attr_0203": {
-                "id": "attr_0203",
-                "name": "Warning",
-                "type": "ClassAttribute",
-                "owner": "class_0201",
-                "bounds": {
-                  "x": 320.5,
-                  "y": 875.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "str",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": false,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
-              },
-              "attr_0204": {
-                "id": "attr_0204",
-                "name": "Critical",
-                "type": "ClassAttribute",
-                "owner": "class_0201",
-                "bounds": {
-                  "x": 320.5,
-                  "y": 900.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "str",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": false,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
-              },
-              "attr_0205": {
-                "id": "attr_0205",
-                "name": "Emergency",
-                "type": "ClassAttribute",
-                "owner": "class_0201",
-                "bounds": {
-                  "x": 320.5,
-                  "y": 925.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "str",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": false,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
-              },
-              "class_0206": {
-                "id": "class_0206",
-                "name": "OperatingModeType",
-                "type": "Enumeration",
-                "owner": null,
-                "bounds": {
-                  "x": 640,
-                  "y": 800,
-                  "width": 240,
-                  "height": 175
-                },
-                "attributes": [
-                  "attr_0207",
-                  "attr_0208",
-                  "attr_0209",
-                  "attr_0210",
-                  "attr_0211"
-                ],
-                "methods": []
-              },
-              "attr_0207": {
-                "id": "attr_0207",
-                "name": "Startup",
-                "type": "ClassAttribute",
-                "owner": "class_0206",
-                "bounds": {
-                  "x": 640.5,
-                  "y": 850.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "str",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": false,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
-              },
-              "attr_0208": {
-                "id": "attr_0208",
-                "name": "Normal",
-                "type": "ClassAttribute",
-                "owner": "class_0206",
-                "bounds": {
-                  "x": 640.5,
-                  "y": 875.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "str",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": false,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
-              },
-              "attr_0209": {
-                "id": "attr_0209",
-                "name": "Shutdown",
-                "type": "ClassAttribute",
-                "owner": "class_0206",
-                "bounds": {
-                  "x": 640.5,
-                  "y": 900.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "str",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": false,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
-              },
-              "attr_0210": {
-                "id": "attr_0210",
-                "name": "Maintenance",
-                "type": "ClassAttribute",
-                "owner": "class_0206",
-                "bounds": {
-                  "x": 640.5,
-                  "y": 925.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "str",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": false,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
-              },
-              "attr_0211": {
-                "id": "attr_0211",
-                "name": "Emergency",
-                "type": "ClassAttribute",
-                "owner": "class_0206",
-                "bounds": {
-                  "x": 640.5,
-                  "y": 950.5,
-                  "width": 239,
-                  "height": 25
-                },
-                "code": "",
-                "visibility": "public",
-                "attributeType": "str",
-                "implementationType": "none",
-                "stateMachineId": "",
-                "quantumCircuitId": "",
-                "isOptional": false,
-                "isDerived": false,
-                "isId": false,
-                "isExternalId": false,
-                "isInput": false
+                "isInput": false,
+                "isStep": false
               }
             },
             "relationships": {
@@ -3349,15 +3222,23 @@
                 "type": "ClassInheritance",
                 "owner": null,
                 "bounds": {
-                  "x": -1813.9000244140625,
-                  "y": -1219.3999633789062,
-                  "width": 18.899999618530273,
-                  "height": 174.99996376037598
+                  "x": -2037.800048828125,
+                  "y": -969.3999633789062,
+                  "width": 323.7000484466553,
+                  "height": 84.89996337890625
                 },
                 "path": [
                   {
+                    "x": 309.800048828125,
+                    "y": 75.39996337890625
+                  },
+                  {
+                    "x": 309.800048828125,
+                    "y": 35.39996337890625
+                  },
+                  {
                     "x": 5,
-                    "y": 165.39996337890625
+                    "y": 40
                   },
                   {
                     "x": 5,
@@ -3396,15 +3277,15 @@
                 "type": "ClassInheritance",
                 "owner": null,
                 "bounds": {
-                  "x": -1983.9000244140625,
-                  "y": -1219.3999633789062,
+                  "x": -2037.9000244140625,
+                  "y": -969.3999633789062,
                   "width": 18.899999618530273,
-                  "height": 166.99996376037598
+                  "height": 198.89996337890625
                 },
                 "path": [
                   {
                     "x": 5,
-                    "y": 157.39996337890625
+                    "y": 189.39996337890625
                   },
                   {
                     "x": 5,
@@ -3443,15 +3324,15 @@
                 "type": "ClassInheritance",
                 "owner": null,
                 "bounds": {
-                  "x": -1732,
-                  "y": -1004,
+                  "x": -1732.5,
+                  "y": -844,
                   "width": 18.899999618530273,
-                  "height": 251.60000038146973
+                  "height": 91.5
                 },
                 "path": [
                   {
                     "x": 5,
-                    "y": 242
+                    "y": 82
                   },
                   {
                     "x": 5,
@@ -3490,23 +3371,23 @@
                 "type": "ClassInheritance",
                 "owner": null,
                 "bounds": {
-                  "x": -1732,
-                  "y": -1004,
-                  "width": 1628.8999996185303,
-                  "height": 250.60000038146973
+                  "x": -1733,
+                  "y": -844,
+                  "width": 1280.8999996185303,
+                  "height": 92.5
                 },
                 "path": [
                   {
-                    "x": 1615,
-                    "y": 241
+                    "x": 1267,
+                    "y": 83
                   },
                   {
-                    "x": 1615,
-                    "y": 120.5
+                    "x": 1267,
+                    "y": 41.5
                   },
                   {
                     "x": 5,
-                    "y": 120.5
+                    "y": 41.5
                   },
                   {
                     "x": 5,
@@ -3545,23 +3426,23 @@
                 "type": "ClassInheritance",
                 "owner": null,
                 "bounds": {
-                  "x": -1732,
-                  "y": -1004,
-                  "width": 658.8999996185303,
-                  "height": 251.60000038146973
+                  "x": -1733,
+                  "y": -844,
+                  "width": 659.8999996185303,
+                  "height": 91.5
                 },
                 "path": [
                   {
-                    "x": 645,
-                    "y": 242
+                    "x": 646,
+                    "y": 82
                   },
                   {
-                    "x": 645,
-                    "y": 121
+                    "x": 646,
+                    "y": 41
                   },
                   {
                     "x": 5,
-                    "y": 121
+                    "y": 41
                   },
                   {
                     "x": 5,
@@ -3594,84 +3475,29 @@
                 },
                 "isManuallyLayouted": false
               },
-              "rel_0227": {
-                "id": "rel_0227",
-                "name": "",
-                "type": "ClassInheritance",
-                "owner": null,
-                "bounds": {
-                  "x": -1732,
-                  "y": -1004,
-                  "width": 978.8999996185303,
-                  "height": 251.60000038146973
-                },
-                "path": [
-                  {
-                    "x": 965,
-                    "y": 242
-                  },
-                  {
-                    "x": 965,
-                    "y": 121
-                  },
-                  {
-                    "x": 5,
-                    "y": 121
-                  },
-                  {
-                    "x": 5,
-                    "y": 0
-                  }
-                ],
-                "source": {
-                  "direction": "Up",
-                  "element": "class_0125",
-                  "multiplicity": "1",
-                  "role": "",
-                  "bounds": {
-                    "x": 0,
-                    "y": 0,
-                    "width": 0,
-                    "height": 0
-                  }
-                },
-                "target": {
-                  "direction": "Down",
-                  "element": "class_0065",
-                  "multiplicity": "1",
-                  "role": "",
-                  "bounds": {
-                    "x": 0,
-                    "y": 0,
-                    "width": 0,
-                    "height": 0
-                  }
-                },
-                "isManuallyLayouted": false
-              },
               "rel_0228": {
                 "id": "rel_0228",
                 "name": "",
                 "type": "ClassInheritance",
                 "owner": null,
                 "bounds": {
-                  "x": -1732,
-                  "y": -1004,
-                  "width": 1298.8999996185303,
-                  "height": 251.60000038146973
+                  "x": -1733,
+                  "y": -844,
+                  "width": 950.8999996185303,
+                  "height": 93.5
                 },
                 "path": [
                   {
-                    "x": 1285,
-                    "y": 242
+                    "x": 937,
+                    "y": 84
                   },
                   {
-                    "x": 1285,
-                    "y": 121
+                    "x": 937,
+                    "y": 42
                   },
                   {
                     "x": 5,
-                    "y": 121
+                    "y": 42
                   },
                   {
                     "x": 5,
@@ -3710,23 +3536,23 @@
                 "type": "ClassInheritance",
                 "owner": null,
                 "bounds": {
-                  "x": -1732,
-                  "y": -1004,
-                  "width": 334.8999996185303,
-                  "height": 250.60000038146973
+                  "x": -1733,
+                  "y": -844,
+                  "width": 335.8999996185303,
+                  "height": 90.5
                 },
                 "path": [
                   {
-                    "x": 321,
-                    "y": 241
+                    "x": 322,
+                    "y": 81
                   },
                   {
-                    "x": 321,
-                    "y": 120.5
+                    "x": 322,
+                    "y": 40.5
                   },
                   {
                     "x": 5,
-                    "y": 120.5
+                    "y": 40.5
                   },
                   {
                     "x": 5,
@@ -3765,23 +3591,23 @@
                 "type": "ClassInheritance",
                 "owner": null,
                 "bounds": {
-                  "x": -1732,
-                  "y": -1004,
-                  "width": 1938.8999996185303,
-                  "height": 251.60000038146973
+                  "x": -1733,
+                  "y": -844,
+                  "width": 1590.8999996185303,
+                  "height": 93.5
                 },
                 "path": [
                   {
-                    "x": 1925,
-                    "y": 242
+                    "x": 1577,
+                    "y": 84
                   },
                   {
-                    "x": 1925,
-                    "y": 121
+                    "x": 1577,
+                    "y": 42
                   },
                   {
                     "x": 5,
-                    "y": 121
+                    "y": 42
                   },
                   {
                     "x": 5,
@@ -3821,22 +3647,22 @@
                 "owner": null,
                 "bounds": {
                   "x": -1732,
-                  "y": -487,
-                  "width": 290.8999996185303,
-                  "height": 173.60000038146973
+                  "y": -457,
+                  "width": 288.8999996185303,
+                  "height": 87.5
                 },
                 "path": [
                   {
-                    "x": 277,
-                    "y": 164
+                    "x": 275,
+                    "y": 78
                   },
                   {
-                    "x": 277,
-                    "y": 82
+                    "x": 275,
+                    "y": 38
                   },
                   {
                     "x": 5,
-                    "y": 82
+                    "y": 40
                   },
                   {
                     "x": 5,
@@ -3875,15 +3701,15 @@
                 "type": "ClassInheritance",
                 "owner": null,
                 "bounds": {
-                  "x": -1731,
-                  "y": -487,
+                  "x": -1732,
+                  "y": -457,
                   "width": 18.899999618530273,
-                  "height": 172.60000038146973
+                  "height": 86.5
                 },
                 "path": [
                   {
                     "x": 5,
-                    "y": 163
+                    "y": 77
                   },
                   {
                     "x": 5,
@@ -3922,26 +3748,26 @@
                 "type": "ClassInheritance",
                 "owner": null,
                 "bounds": {
-                  "x": -2011,
-                  "y": -487,
-                  "width": 297.8999996185303,
-                  "height": 178.60000038146973
+                  "x": -2013,
+                  "y": -457,
+                  "width": 299.8999996185303,
+                  "height": 92.5
                 },
                 "path": [
                   {
                     "x": 5,
-                    "y": 169
+                    "y": 83
                   },
                   {
                     "x": 5,
-                    "y": 84.5
+                    "y": 41.5
                   },
                   {
-                    "x": 284,
-                    "y": 84.5
+                    "x": 286,
+                    "y": 41.5
                   },
                   {
-                    "x": 284,
+                    "x": 286,
                     "y": 0
                   }
                 ],
@@ -3977,15 +3803,15 @@
                 "type": "ClassInheritance",
                 "owner": null,
                 "bounds": {
-                  "x": -532,
-                  "y": -662,
+                  "x": -858,
+                  "y": -660,
                   "width": 18.899999618530273,
-                  "height": 311.6000003814697
+                  "height": 131.5
                 },
                 "path": [
                   {
                     "x": 5,
-                    "y": 302
+                    "y": 122
                   },
                   {
                     "x": 5,
@@ -4024,15 +3850,15 @@
                 "type": "ClassInheritance",
                 "owner": null,
                 "bounds": {
-                  "x": -375,
-                  "y": -662,
+                  "x": -715.5,
+                  "y": -660,
                   "width": 18.899999618530273,
-                  "height": 311.6000003814697
+                  "height": 143.5
                 },
                 "path": [
                   {
                     "x": 5,
-                    "y": 302
+                    "y": 134
                   },
                   {
                     "x": 5,
@@ -4071,15 +3897,15 @@
                 "type": "ClassInheritance",
                 "owner": null,
                 "bounds": {
-                  "x": -2072,
-                  "y": -962,
+                  "x": -2037.5,
+                  "y": -680,
                   "width": 18.899999618530273,
-                  "height": 181.60000038146973
+                  "height": 89.5
                 },
                 "path": [
                   {
                     "x": 5,
-                    "y": 172
+                    "y": 80
                   },
                   {
                     "x": 5,
@@ -4118,26 +3944,26 @@
                 "type": "ClassInheritance",
                 "owner": null,
                 "bounds": {
-                  "x": -2600,
-                  "y": -962,
-                  "width": 546.8999996185303,
-                  "height": 183.60000038146973
+                  "x": -2565,
+                  "y": -680,
+                  "width": 545.8999996185303,
+                  "height": 91.5
                 },
                 "path": [
                   {
                     "x": 5,
-                    "y": 174
+                    "y": 82
                   },
                   {
                     "x": 5,
-                    "y": 87
+                    "y": 41
                   },
                   {
-                    "x": 533,
-                    "y": 87
+                    "x": 532,
+                    "y": 41
                   },
                   {
-                    "x": 533,
+                    "x": 532,
                     "y": 0
                   }
                 ],
@@ -4173,26 +3999,26 @@
                 "type": "ClassInheritance",
                 "owner": null,
                 "bounds": {
-                  "x": -2333,
-                  "y": -962,
-                  "width": 279.8999996185303,
-                  "height": 184.60000038146973
+                  "x": -2298,
+                  "y": -680,
+                  "width": 278.8999996185303,
+                  "height": 92.5
                 },
                 "path": [
                   {
                     "x": 5,
-                    "y": 175
+                    "y": 83
                   },
                   {
                     "x": 5,
-                    "y": 87.5
+                    "y": 41.5
                   },
                   {
-                    "x": 266,
-                    "y": 87.5
+                    "x": 265,
+                    "y": 41.5
                   },
                   {
-                    "x": 266,
+                    "x": 265,
                     "y": 0
                   }
                 ],
@@ -4228,31 +4054,27 @@
                 "type": "ClassInheritance",
                 "owner": null,
                 "bounds": {
-                  "x": -931,
-                  "y": -1039.9998168945312,
-                  "width": 817.6999263763428,
-                  "height": 118.59981727600098
+                  "x": -1235,
+                  "y": -1053,
+                  "width": 170.7999267578125,
+                  "height": 105.50018310546875
                 },
                 "path": [
                   {
-                    "x": 803.7999267578125,
+                    "x": 170.7999267578125,
+                    "y": 67.00018310546875
+                  },
+                  {
+                    "x": 5,
+                    "y": 67.00018310546875
+                  },
+                  {
+                    "x": 5,
                     "y": 0
-                  },
-                  {
-                    "x": 803.7999267578125,
-                    "y": 99.99981689453125
-                  },
-                  {
-                    "x": 5,
-                    "y": 99.99981689453125
-                  },
-                  {
-                    "x": 5,
-                    "y": 59.99981689453125
                   }
                 ],
                 "source": {
-                  "direction": "Down",
+                  "direction": "Left",
                   "element": "class_0069",
                   "multiplicity": "1",
                   "role": "",
@@ -4283,31 +4105,23 @@
                 "type": "ClassInheritance",
                 "owner": null,
                 "bounds": {
-                  "x": -931,
-                  "y": -1001,
-                  "width": 407.8999996185303,
-                  "height": 79.60000038146973
+                  "x": -1235,
+                  "y": -1053,
+                  "width": 18.899999618530273,
+                  "height": 101.5
                 },
                 "path": [
                   {
-                    "x": 394,
+                    "x": 5,
+                    "y": 92
+                  },
+                  {
+                    "x": 5,
                     "y": 0
-                  },
-                  {
-                    "x": 394,
-                    "y": 61
-                  },
-                  {
-                    "x": 5,
-                    "y": 61
-                  },
-                  {
-                    "x": 5,
-                    "y": 21
                   }
                 ],
                 "source": {
-                  "direction": "Down",
+                  "direction": "Up",
                   "element": "class_0078",
                   "multiplicity": "1",
                   "role": "",
@@ -4338,10 +4152,10 @@
                 "type": "ClassBidirectional",
                 "owner": null,
                 "bounds": {
-                  "x": -1770.800048828125,
-                  "y": -1329.3999633789062,
-                  "width": 337.0333819389343,
-                  "height": 222.99996376037598
+                  "x": -1912.800048828125,
+                  "y": -1041.1999816894531,
+                  "width": 171.800048828125,
+                  "height": 48.5
                 },
                 "path": [
                   {
@@ -4349,12 +4163,8 @@
                     "y": 10
                   },
                   {
-                    "x": 325.800048828125,
+                    "x": 171.800048828125,
                     "y": 10
-                  },
-                  {
-                    "x": 325.800048828125,
-                    "y": 213.39996337890625
                   }
                 ],
                 "source": {
@@ -4370,7 +4180,7 @@
                   }
                 },
                 "target": {
-                  "direction": "Topleft",
+                  "direction": "Left",
                   "element": "class_0086",
                   "multiplicity": "*",
                   "role": "ports",
@@ -4389,18 +4199,22 @@
                 "type": "ClassBidirectional",
                 "owner": null,
                 "bounds": {
-                  "x": -1407.3833312988281,
-                  "y": -1156,
-                  "width": 570.4166641235352,
-                  "height": 85.95000076293945
+                  "x": -1763.3833312988281,
+                  "y": -1163,
+                  "width": 413.3833312988281,
+                  "height": 79.5
                 },
                 "path": [
                   {
-                    "x": 541.3833312988281,
-                    "y": 76
+                    "x": 413.3833312988281,
+                    "y": 35
                   },
                   {
-                    "x": 541.3833312988281,
+                    "x": 373.3833312988281,
+                    "y": 35
+                  },
+                  {
+                    "x": 373.3833312988281,
                     "y": 0
                   },
                   {
@@ -4409,13 +4223,13 @@
                   },
                   {
                     "x": 82.38333129882812,
-                    "y": 40
+                    "y": 70
                   }
                 ],
                 "source": {
-                  "direction": "Topright",
+                  "direction": "Upleft",
                   "element": "class_0016",
-                  "multiplicity": "0..*",
+                  "multiplicity": "*",
                   "role": "outgoingStreams",
                   "bounds": {
                     "x": 0,
@@ -4425,7 +4239,7 @@
                   }
                 },
                 "target": {
-                  "direction": "Topright",
+                  "direction": "Topleft",
                   "element": "class_0086",
                   "multiplicity": "1",
                   "role": "sourcePort",
@@ -4444,25 +4258,29 @@
                 "type": "ClassBidirectional",
                 "owner": null,
                 "bounds": {
-                  "x": -1265,
-                  "y": -1040,
-                  "width": 219,
-                  "height": 48.60000038146973
+                  "x": -1501,
+                  "y": -1053,
+                  "width": 222.23333311080933,
+                  "height": 103.5
                 },
                 "path": [
                   {
-                    "x": 219,
-                    "y": 10
+                    "x": 211,
+                    "y": 0
+                  },
+                  {
+                    "x": 211,
+                    "y": 65
                   },
                   {
                     "x": 0,
-                    "y": 10
+                    "y": 65
                   }
                 ],
                 "source": {
-                  "direction": "Upleft",
+                  "direction": "Bottomleft",
                   "element": "class_0016",
-                  "multiplicity": "0..*",
+                  "multiplicity": "*",
                   "role": "incomingStreams",
                   "bounds": {
                     "x": 0,
@@ -4484,11 +4302,136 @@
                   }
                 },
                 "isManuallyLayouted": false
+              },
+              "f23e2cde-87f3-4a9a-bd71-a39331e6b705": {
+                "id": "f23e2cde-87f3-4a9a-bd71-a39331e6b705",
+                "name": "",
+                "type": "ClassInheritance",
+                "owner": null,
+                "bounds": {
+                  "x": -2271,
+                  "y": -1095,
+                  "width": 243.199951171875,
+                  "height": 166.60003662109375
+                },
+                "path": [
+                  {
+                    "x": 0,
+                    "y": 10
+                  },
+                  {
+                    "x": 40,
+                    "y": 10
+                  },
+                  {
+                    "x": 40,
+                    "y": 165.60003662109375
+                  },
+                  {
+                    "x": 238.199951171875,
+                    "y": 165.60003662109375
+                  },
+                  {
+                    "x": 238.199951171875,
+                    "y": 125.60003662109375
+                  }
+                ],
+                "source": {
+                  "direction": "Right",
+                  "element": "bb8de9c1-0df4-4a58-b24d-c9b8b6ea9c73",
+                  "multiplicity": "",
+                  "role": ""
+                },
+                "target": {
+                  "direction": "Down",
+                  "element": "class_0008",
+                  "multiplicity": "",
+                  "role": ""
+                },
+                "isManuallyLayouted": false
+              },
+              "23b2ade2-8005-458b-81e0-928556a8bf63": {
+                "id": "23b2ade2-8005-458b-81e0-928556a8bf63",
+                "name": "",
+                "type": "ClassInheritance",
+                "owner": null,
+                "bounds": {
+                  "x": -2579,
+                  "y": -1045,
+                  "width": 233,
+                  "height": 171
+                },
+                "path": [
+                  {
+                    "x": 5,
+                    "y": 171
+                  },
+                  {
+                    "x": 5,
+                    "y": 85.5
+                  },
+                  {
+                    "x": 228,
+                    "y": 85.5
+                  },
+                  {
+                    "x": 228,
+                    "y": 0
+                  }
+                ],
+                "source": {
+                  "direction": "Up",
+                  "element": "db71ef3d-88b6-456f-bacd-88a783a5440b",
+                  "multiplicity": "",
+                  "role": ""
+                },
+                "target": {
+                  "direction": "Down",
+                  "element": "bb8de9c1-0df4-4a58-b24d-c9b8b6ea9c73",
+                  "multiplicity": "",
+                  "role": ""
+                },
+                "isManuallyLayouted": false
+              },
+              "c480bb2a-0dd5-4cf8-8063-9a761ec29278": {
+                "id": "c480bb2a-0dd5-4cf8-8063-9a761ec29278",
+                "name": "",
+                "type": "ClassInheritance",
+                "owner": null,
+                "bounds": {
+                  "x": -2356,
+                  "y": -1045,
+                  "width": 10,
+                  "height": 172
+                },
+                "path": [
+                  {
+                    "x": 5,
+                    "y": 172
+                  },
+                  {
+                    "x": 5,
+                    "y": 0
+                  }
+                ],
+                "source": {
+                  "direction": "Up",
+                  "element": "5cd8da45-9509-4956-b2d2-2bd1fc998070",
+                  "multiplicity": "",
+                  "role": ""
+                },
+                "target": {
+                  "direction": "Down",
+                  "element": "bb8de9c1-0df4-4a58-b24d-c9b8b6ea9c73",
+                  "multiplicity": "",
+                  "role": ""
+                },
+                "isManuallyLayouted": false
               }
             },
             "assessments": {}
           },
-          "lastUpdate": "2026-05-27T10:42:14.488Z"
+          "lastUpdate": "2026-06-26T15:23:27.545Z"
         }
       ],
       "PlatformCustomizationDiagram": [
@@ -4512,7 +4455,12 @@
               "EnergyStream": {
                 "lineWidth": 3,
                 "edgeColor": "#10b981",
-                "isConnectionClass": true
+                "isConnectionClass": true,
+                "lineRouting": "smoothstep"
+              },
+              "Compressor": {
+                "isPort": true,
+                "portSide": "auto"
               }
             },
             "associationOverrides": {
@@ -4529,7 +4477,7 @@
             },
             "version": "2.0.0"
           },
-          "lastUpdate": "2026-05-12T10:50:16.457Z"
+          "lastUpdate": "2026-06-24T11:05:01.653Z"
         }
       ]
     },
@@ -4539,6 +4487,6 @@
       "collaborationEnabled": false
     }
   },
-  "exportedAt": "2026-05-27T10:42:30.950Z",
+  "exportedAt": "2026-06-26T15:23:30.034Z",
   "version": "2.0.0"
 }
