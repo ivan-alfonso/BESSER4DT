@@ -17,7 +17,7 @@ All new fields default to None / False so a model with no overrides produces
 output identical to v1.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional, Type, TypeVar

@@ -17,7 +17,7 @@ much smaller surface, identical observable behaviour.
 from __future__ import annotations
 
 from collections import namedtuple
-from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Tuple
 
 
 # Per-class association-end metadata. Keyed by ``(class_name, end_name)`` so

@@ -10,9 +10,6 @@ from enum import Enum
 from typing import Iterable, List, Optional
 
 from besser.BUML.metamodel.platform_customization import (
-    AssociationCustomization,
-    ClassCustomization,
-    DiagramCustomization,
     PlatformCustomizationModel,
 )
 from besser.utilities.buml_code_builder.common import _escape_python_string

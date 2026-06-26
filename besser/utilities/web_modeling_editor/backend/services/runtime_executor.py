@@ -21,7 +21,6 @@ from besser.utilities.web_modeling_editor.backend.services.converters.json_to_bu
 from besser.utilities.web_modeling_editor.backend.services.converters.json_to_buml.object_diagram_processor import (
     process_object_diagram,
 )
-from besser.utilities.web_modeling_editor.backend.services.exceptions import ConversionError
 
 
 # ---------------------------------------------------------------------------

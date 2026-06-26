@@ -49,7 +49,6 @@ from __future__ import annotations
 import logging
 import os
 import time
-from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -108,7 +107,7 @@ class HistoryStore:
     # --------------------------------------------------------- InfluxDB init
 
     def _init_influxdb(self) -> None:
-        from influxdb_client import InfluxDBClient, WriteOptions
+        from influxdb_client import InfluxDBClient
         from influxdb_client.client.write_api import SYNCHRONOUS
 
         url = os.environ["INFLUXDB_URL"]
@@ -181,7 +180,6 @@ class HistoryStore:
                 logger.warning("HistoryStore: InfluxDB write error at tick %d: %s", tick_count, exc)
 
     def _snapshot_buffer(self, tick_count: int, ts: float) -> None:
-        import json
         for inst in self._im.get_all_instances():
             cn = inst["class_name"]
             if not self._should_record(cn):

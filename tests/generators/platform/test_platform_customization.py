@@ -411,16 +411,15 @@ class TestAddablePortClasses:
 
     def test_instance_node_default_handles_for_regular_classes(self, tmp_path, region_sensor_model):
         # Regular classes (no addablePortClasses) keep all four default
-        # handles so xyflow can anchor association edges. Port-host classes
-        # opt out automatically. Explicit `connectionPoints` overrides either
-        # way.
+        # handles so xyflow can anchor association edges. Explicit
+        # `connectionPoints` overrides the default.
         out = tmp_path / "node_handles_optin"
         PlatformGenerator(region_sensor_model, customization=None, output_dir=str(out)).generate()
         node = (out / "frontend" / "src" / "components" / "InstanceNode.tsx").read_text(encoding="utf-8")
-        # The conditional default keeps HANDLE_POSITIONS for regular classes.
-        assert "isPortHost ? [] : HANDLE_POSITIONS" in node
-        # And still computes the port-host flag from addablePortClasses.
-        assert "classMetadata.addablePortClasses?.length" in node
+        # HANDLE_POSITIONS constant is used as the default for all classes.
+        assert "HANDLE_POSITIONS" in node
+        # addablePortClasses is still referenced for port-spawning logic.
+        assert "classMetadata.addablePortClasses" in node
 
 
     def test_only_some_fields_set_emits_only_those(self, tmp_path, region_sensor_model):
